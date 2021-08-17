@@ -17,8 +17,8 @@ class Exp(metaclass=abc.ABCMeta):
     def class_name(self):
         return self.__class__.__name__
 
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def evaluate(expression):
         "evalutaion method"
 
