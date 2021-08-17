@@ -10,14 +10,64 @@ class TOKEN:
     TOK_NULL = 7
 
 
-
-
 class Lexer:
     '''
     The Lexical Analysis Algorithm scans through the input
     and returns the token associated with the operator.
     '''
-    def __init__(self, expr):
+    def __init__(self, expr: str):
         self.iexpr = expr
         self.length = len(self.iexpr)
         self.index = 0
+
+    def get_token(self):
+        tok = TOKEN.TOK_NULL
+
+        # skip white spaces
+        while (self.index < self.length
+               and (self.index == ' ' or self.iexpr[self.index] == '\t')):
+            self.index += 1
+
+        # end of string -> null
+        if self.index == self.length:
+            return TOKEN.TOK_NULL
+
+        index_token = self.iexpr[index]
+
+        if index_token == "+":
+            tok = TOKEN.TOK_PLUS
+            self.index += 1
+
+        elif index_token == "-":
+            tok = TOKEN.TOK_SUB
+            self.index += 1
+
+        elif index_token == "*":
+            tok = TOKEN.TOK_MUl
+            self.index += 1
+
+        elif index_token == "/":
+            tok = TOKEN.TOK_DIV
+            self.index += 1
+
+        elif index_token == "(":
+            tok = TOKEN.TOK_OPAREN
+            self.index += 1
+
+        elif index_token == ")":
+            tok = TOKEN.TOK_CPAREN
+            self.index += 1
+
+        elif index_token.isdigit():
+            num_string = ""
+            while (self.index < self.length and index_token.isdigit()):
+                num_string += index_token
+                self.index += 1
+
+            self.number = float(num_string)
+            tok = TOKEN.TOK_DOUBLE
+
+        else:
+            raise ValueError("Error while Analysing the Token")
+
+        return tok
