@@ -18,14 +18,8 @@ class Exp(metaclass=abc.ABCMeta):
         return self.__class__.__name__
 
     @staticmethod
-    @abc.abstractmethod
     def evaluate(expression):
         "evalutaion method"
-
-
-    @property
-    def ast(self):
-        return str(self)
 
 
 class NumericConstant(Exp):
@@ -38,10 +32,8 @@ class NumericConstant(Exp):
     def __repr__(self):
         return f'{self.class_name}({self._value})'
 
-
     def __str__(self):
         return f'{self._value}'
-
 
 
 class BinaryExp(Exp):
@@ -52,16 +44,16 @@ class BinaryExp(Exp):
 
     def evaluate(self):
         if self._op == OPERATOR.PLUS:
-            return self._ex1.evaluate() + self._ex1.evaluate()
+            return self._ex1.evaluate() + self._ex2.evaluate()
 
         elif self._op == OPERATOR.MINUS:
-            return self._ex1.evaluate() - self._ex1.evaluate()
+            return self._ex1.evaluate() - self._ex2.evaluate()
 
         elif self._op == OPERATOR.MUL:
-            return self._ex1.evaluate() * self._ex1.evaluate()
+            return self._ex1.evaluate() * self._ex2.evaluate()
 
         elif self._op == OPERATOR.PLUS:
-            return self._ex1.evaluate() / self._ex1.evaluate()
+            return self._ex1.evaluate() / self._ex2.evaluate()
 
         else:
             return math.nan
@@ -83,7 +75,7 @@ class UnaryExp(Exp):
             return self._ex1.evaluate()
 
         elif self._op == OPERATOR.MINUS:
-            return - self._ex1.evaluate()
+            return -self._ex1.evaluate()
 
         else:
             math.nan
@@ -96,29 +88,28 @@ class UnaryExp(Exp):
 
 
 if __name__ == '__main__':
-    # exp1 = BinaryExp(NumericConstant(8) ,
-    #                  NumericConstant(8) ,
-    #                  OPERATOR.PLUS
-    # )
+    exp1 = BinaryExp(NumericConstant(8) ,
+                     NumericConstant(18) ,
+                     OPERATOR.PLUS
+    )
 
-    # print(exp1.evaluate())
-    # print(exp1)
+    print(exp1.evaluate())
+    print(f'{exp1} \n')
 
-    # exp1 = BinaryExp(NumericConstant(30),
-    #           NumericConstant(50),
-    #           OPERATOR.PLUS
-    # )
-    # print(exp1.evaluate())
 
     exp2 = UnaryExp(
           BinaryExp(NumericConstant(10),
-                    80,
+                    BinaryExp(NumericConstant(30),
+                              NumericConstant(50),
+                              OPERATOR.PLUS
+                              ),
                     OPERATOR.PLUS
                     ),
           OPERATOR.PLUS
           )
     print (exp2.evaluate())
+    print(f'{exp2} \n')
 
-
-    # exp3  = BinaryExp(NumericConstant(400), exp2, OPERATOR.PLUS)
-    # print (exp3.evaluate())
+    exp3  = BinaryExp(NumericConstant(400), exp2, OPERATOR.PLUS)
+    print (exp3.evaluate())
+    print(f'{exp3} \n')
