@@ -58,10 +58,14 @@ class Lexer:
             tok = TOKEN.TOK_CPAREN
             self.index += 1
 
+        # parsing string
         elif index_token.isdigit():
             num_string = ""
-            while (self.index < self.length and index_token.isdigit()):
-                num_string += index_token
+
+            while (self.index < self.length
+                   and self.iexpr[self.index].isdigit()):
+
+                num_string += self.iexpr[self.index]
                 self.index += 1
 
             self.number = float(num_string)
@@ -71,3 +75,6 @@ class Lexer:
             raise ValueError("Error while Analysing the Token")
 
         return tok
+
+    def get_number(self):
+        return self.number
