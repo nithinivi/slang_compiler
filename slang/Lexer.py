@@ -32,7 +32,7 @@ class Lexer:
         if self.index == self.length:
             return TOKEN.TOK_NULL
 
-        index_token = self.iexpr[index]
+        index_token = self.iexpr[self.index]
 
         if index_token == "+":
             tok = TOKEN.TOK_PLUS
