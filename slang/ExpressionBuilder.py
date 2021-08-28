@@ -1,4 +1,4 @@
-from .RDParser import RDParser
+from RDParser import RDParser
 
 class ExpressionBuilder:
     def __init__(self, expr):

@@ -43,7 +43,7 @@ class Lexer:
             self.index += 1
 
         elif index_token == "*":
-            tok = TOKEN.TOK_MUl
+            tok = TOKEN.TOK_MUL
             self.index += 1
 
         elif index_token == "/":

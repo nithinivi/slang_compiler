@@ -1,5 +1,5 @@
-from .Lexer import TOKEN, Lexer
-from .AST import BinaryExp, NumericConstant, UnaryExp
+from Lexer import TOKEN, Lexer
+from AST import BinaryExp, NumericConstant, UnaryExp
 
 
 class RDParser(Lexer):
@@ -57,7 +57,7 @@ class RDParser(Lexer):
             self.current_token = self.get_token()
             return_value = self.factor()
             return_value = UnaryExp(return_value,
-            TOKEN.TOK_PLUS if l_token== TOKEN.TOK_plus else TOKEN.TOK_SUB )
+            TOKEN.TOK_PLUS if l_token== TOKEN.TOK_PLUS else TOKEN.TOK_SUB )
         else :
             raise Exception("Illegal Token")
         return return_value

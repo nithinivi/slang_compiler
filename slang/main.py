@@ -3,10 +3,10 @@ from ExpressionBuilder import ExpressionBuilder
 def main():
     expr_str = "-2*(3+(4/2))"
     b  = ExpressionBuilder(expr_str)
-    e = b.GetExpression()
-    print ("Expression in String: %s " % expr_str)
-    print ("AST: %s" % e)
-    print ("Result: %d" % e.Evaluate())
+    e = b.get_expression()
+    print (f"Expression in String: {expr_str} ")
+    print (f"AST: {e}")
+    print (f"Result: { e.evaluate()}")
     
 
 
