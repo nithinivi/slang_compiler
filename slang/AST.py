@@ -63,7 +63,7 @@ class BinaryExp(Exp):
         return f"{self.class_name}({self._ex1}, {self._ex2}, '{self._op}')"
 
     def __str__(self):
-        return f'({self._op} {self._ex1} {self._ex2})'
+        return f'( {self._ex1} {self._op} {self._ex2})'
 
 
 class UnaryExp(Exp):

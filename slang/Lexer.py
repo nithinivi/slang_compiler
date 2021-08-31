@@ -15,6 +15,7 @@ class Lexer:
     The Lexical Analysis Algorithm scans through the input
     and returns the token associated with the operator.
     '''
+
     def __init__(self, expr: str):
         self.iexpr = expr
         self.length = len(self.iexpr)
@@ -22,12 +23,11 @@ class Lexer:
 
     def get_token(self):
         tok = TOKEN.TOK_NULL
-
         # skip white spaces
-        while (self.index < self.length
-               and (self.index == ' ' or self.iexpr[self.index] == '\t')):
+        while (self.index < self.length and (
+            self.iexpr[self.index] in [' ', '\t'])
+            ):
             self.index += 1
-
         # end of string -> null
         if self.index == self.length:
             return TOKEN.TOK_NULL
@@ -77,4 +77,5 @@ class Lexer:
         return tok
 
     def get_number(self):
+        """Return the number in parens."""
         return self.number
