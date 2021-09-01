@@ -55,7 +55,7 @@ class RDParser(Lexer):
             if self.current_token != TOKEN.TOK_CPAREN:
                 raise Exception("Missing ')' Parens")
             self.current_token = self.get_token()
-
+            # the value is NULL TOKEN THER NOTHING MUCH TO DO.
         elif self.current_token == TOKEN.TOK_PLUS or self.current_token == TOKEN.TOK_SUB:
             l_token = self.current_token
             self.current_token = self.get_token()
