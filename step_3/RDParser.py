@@ -1,5 +1,12 @@
-from Lexer import TOKEN, Lexer
-from AST import OPERATOR, BinaryExp, NumericConstant, UnaryExp
+"""The class RDParser is derived from the Lexer class. By using an algorithm by the name Recursive
+descent parsing , we will evaluate the expression.A recursive descent parser is a top-down parser built
+from a set of mutually-recursive procedures where each such procedure usually implements one of the
+production rules of the grammar
+"""
+
+
+from .Lexer import TOKEN, Lexer
+from .AST import OPERATOR, BinaryExp, NumericConstant, UnaryExp
 
 
 class RDParser(Lexer):
@@ -36,9 +43,8 @@ class RDParser(Lexer):
             l_token = self.current_token
             self.current_token = self.get_token()
             e1 = self.term()
-            return_value = BinaryExp(
-                return_value, e1,
-                OPERATOR.MUL if l_token == TOKEN.TOK_MUL else OPERATOR.DIV)
+            term_operator = OPERATOR.MUL if l_token == TOKEN.TOK_MUL else OPERATOR.DIV
+            return_value = BinaryExp(return_value, e1, term_operator)
         return return_value
 
     def factor(self):
@@ -60,9 +66,13 @@ class RDParser(Lexer):
             l_token = self.current_token
             self.current_token = self.get_token()
             return_value = self.factor()
-            return_value = UnaryExp(
-                return_value,
-                TOKEN.TOK_PLUS if l_token == TOKEN.TOK_PLUS else TOKEN.TOK_SUB)
+            factor_operator = TOKEN.TOK_PLUS if l_token == TOKEN.TOK_PLUS else TOKEN.TOK_SUB
+            return_value = UnaryExp(return_value, factor_operator)
         else:
             raise Exception("Illegal Token")
+        return return_value
+
+
+    def new_method(self, return_value, operator_var):
+        return_value = 
         return return_value

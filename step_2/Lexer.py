@@ -7,7 +7,11 @@ class TOKEN:
     TOK_OPAREN = 4
     TOK_CPAREN = 5
     TOK_DOUBLE = 6
-    TOK_NULL = 7
+    TOK_NULL = 7  # end of string.
+    TOK_PRINT = 8
+    TOK_PRINTLN = 9
+    TOK_UNQUOTED_STRING = 10
+    TOK_SEMI = 11
 
 
 class Lexer:
@@ -26,7 +30,7 @@ class Lexer:
         # skip white spaces
         while (self.index < self.length and (
             self.iexpr[self.index] in [' ', '\t'])
-            ):
+        ):
             self.index += 1
         # end of string -> null
         if self.index == self.length:
@@ -79,3 +83,13 @@ class Lexer:
     def get_number(self):
         """Return the number in parens."""
         return self.number
+
+
+class ValueTable:
+    def __init__(self, token, value) -> None:
+        self.tok = token
+        self.value = value
+
+
+_val = [ValueTable(TOKEN.TOK_PRINT, "PRINT"),
+        ValueTable(TOKEN.TOK_PRINTLN, "PRINTLN")]
