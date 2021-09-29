@@ -1,4 +1,10 @@
-package slang4java.Lexer;
+/*
+* <Expr> ::= <Term> | Term { + | - } <Expr>
+* <Term> ::= <Factor> | <Factor> { * | / } <Term>
+* <Factor>::= <number> | ( <expr> ) | { + | - } <factor>
+* */
+
+package slang4java.lexer;
 
 import slang4java.OPERATOR;
 import slang4java.expressions.BinaryExp;

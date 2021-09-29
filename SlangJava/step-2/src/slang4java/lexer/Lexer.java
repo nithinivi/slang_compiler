@@ -1,4 +1,4 @@
-package slang4java.Lexer;
+package slang4java.lexer;
 
 public class Lexer {
 
