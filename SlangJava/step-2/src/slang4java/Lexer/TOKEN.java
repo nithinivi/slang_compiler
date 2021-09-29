@@ -1,7 +1,7 @@
 package slang4java.Lexer;
 
 public enum TOKEN {
-    ILLEGAL_TOK,
+    ILLEGAL_TOKEN,
     TOK_PLUS,
     TOK_MUL,
     TOK_DIV,

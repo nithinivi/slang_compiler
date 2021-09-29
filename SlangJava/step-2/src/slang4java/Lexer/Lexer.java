@@ -13,12 +13,10 @@ public class Lexer {
         index = 0;
     }
 
-
     public TOKEN getToken() {
-        TOKEN tok = TOKEN.ILLEGAL_TOK;
+        TOKEN tok = TOKEN.ILLEGAL_TOKEN;
 
-        while (index < length && (iExpr.toCharArray()[index] == '' ||
-                iExpr.toCharArray()[index] == '\t'))
+        while (index < length && iExpr.toCharArray()[index] == ' ' || index < length && iExpr.toCharArray()[index] == '\t')
             index++;
 
         // if end of string
@@ -28,9 +26,9 @@ public class Lexer {
 
         switch (iExpr.toCharArray()[index]) {
             case '+' -> {
-             tok = TOKEN.TOK_PLUS;
-             index++;
-             break;
+                tok = TOKEN.TOK_PLUS;
+                index++;
+                break;
             }
             case '-' -> {
                 tok = TOKEN.TOK_SUB;
@@ -57,34 +55,36 @@ public class Lexer {
                 index++;
                 break;
             }
-            case Character.isDigit(iExpr.toCharArray()[index]) ->{
-                String str = "";
-                while (index < length && (iExpr.toCharArray()[index] == '0'
-                        || iExpr.toCharArray()[index] == '1'
-                        || iExpr.toCharArray()[index] == '2'
-                        || iExpr.toCharArray()[index] == '3'
-                        || iExpr.toCharArray()[index] == '4'
-                        || iExpr.toCharArray()[index] == '5'
-                        || iExpr.toCharArray()[index] == '6'
-                        || iExpr.toCharArray()[index] == '7'
-                        || iExpr.toCharArray()[index] == '8'
-                        || iExpr.toCharArray()[index] == '9')) {
-                    str += (iExpr.toCharArray()[index]);
-                    index++;
+            default -> {
+                if (Character.isDigit(iExpr.toCharArray()[index])) {
+                    String str = "";
+                    while (index < length && (iExpr.toCharArray()[index] == '0'
+                            || iExpr.toCharArray()[index] == '1'
+                            || iExpr.toCharArray()[index] == '2'
+                            || iExpr.toCharArray()[index] == '3'
+                            || iExpr.toCharArray()[index] == '4'
+                            || iExpr.toCharArray()[index] == '5'
+                            || iExpr.toCharArray()[index] == '6'
+                            || iExpr.toCharArray()[index] == '7'
+                            || iExpr.toCharArray()[index] == '8'
+                            || iExpr.toCharArray()[index] == '9')) {
+                        str += (iExpr.toCharArray()[index]);
+                        index++;
+                    }
+                    number = Double.parseDouble(str);
+                    tok = TOKEN.TOK_DOUBLE;
+                } else {
+                    throw new IllegalStateException("Unexpected value: " + iExpr.toCharArray()[index]);
                 }
-                number = Double.parseDouble(str);
-                tok = TOKEN.TOK_DOUBLE;
+                //            default ->
             }
-
-            default -> throw new IllegalStateException("Unexpected value: " + iExpr.toCharArray()[index]);
         }
-
 
         return tok;
 
     }
 
-    public double getNumber(){
+    public double getNumber() {
         return number;
     }
 }
