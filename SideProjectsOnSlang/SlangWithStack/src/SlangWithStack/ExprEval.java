@@ -198,6 +198,8 @@ public class ExprEval {
             else if(currentToken == TOKEN.TOK_OPAREN){
                 // at this point another expression can be found
                 // can be containing other expressions
+                // test1 ->  1 * (* 2)
+                // test2 -> 1 (*2)
                 Expr();
                 if(currentToken != TOKEN.TOK_CPAREN){
                     System.out.println("Expected  closing parenthesis");
@@ -212,7 +214,7 @@ public class ExprEval {
                 l_token = currentToken;
                 currentToken = getToken();
                 // there are chances that the next token can be illegal
-                // what happens if the text is (-) , -() ? is this edge condition
+                // what happens if the text is (-) , -()  ? is this edge condition
                 //
                 Factor();
                 double x = ValueStack.pop();
