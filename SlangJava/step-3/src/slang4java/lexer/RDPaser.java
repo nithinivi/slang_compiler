@@ -96,7 +96,6 @@ public class RDPaser extends Lexer {
     private TOKEN getNext() {
         lastToken = currentToken;
         currentToken = getToken();
-        System.out.println(currentToken);
         return currentToken;
     }
 
