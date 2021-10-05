@@ -1,8 +1,6 @@
 
 package SlangWithStack;
 
-import java.util.TooManyListenersException;
-
 enum TOKEN {
     ILLEGAL_TOKEN,
     TOK_PLUS,
