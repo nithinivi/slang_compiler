@@ -16,9 +16,9 @@ public class ExprEval {
         TOK_NULL
     }
 
-    public class Lexer {
+    public static  class  Lexer {
         private String IExpr;
-        private int index = 1;
+        private int index;
         private int length;
         private double number;
 
@@ -29,12 +29,13 @@ public class ExprEval {
         }
 
         private char getCharAtIndex() {
-            return getCharAtIndex();
+            return IExpr.toCharArray()[index];
         }
 
         public TOKEN getToken() {
 
             TOKEN tok = TOKEN.ILLEGAL_TOKEN;
+
             while (index < length && (getCharAtIndex() == ' ' || getCharAtIndex() == '\t'))
                 index++;
             if (index == length)
@@ -44,36 +45,30 @@ public class ExprEval {
                 case '+' -> {
                     tok = TOKEN.TOK_PLUS;
                     index++;
-                    break;
                 }
                 case '-' -> {
                     tok = TOKEN.TOK_SUB;
                     index++;
-                    break;
                 }
                 case '*' -> {
                     tok = TOKEN.TOK_MUL;
                     index++;
-                    break;
                 }
                 case '/' -> {
                     tok = TOKEN.TOK_DIV;
                     index++;
-                    break;
                 }
                 case '(' -> {
                     tok = TOKEN.TOK_OPAREN;
                     index++;
-                    break;
                 }
                 case ')' -> {
                     tok = TOKEN.TOK_CPAREN;
                     index++;
-                    break;
                 }
                 default -> {
                     if (Character.isDigit(getCharAtIndex())) {
-                        String str = "";
+                        StringBuilder str = new StringBuilder();
                         while (index < length && (getCharAtIndex() == '0'
                                 || getCharAtIndex() == '1'
                                 || getCharAtIndex() == '2'
@@ -84,10 +79,10 @@ public class ExprEval {
                                 || getCharAtIndex() == '7'
                                 || getCharAtIndex() == '8'
                                 || getCharAtIndex() == '9')) {
-                            str += (getCharAtIndex());
+                            str.append(getCharAtIndex());
                             index++;
                         }
-                        number = Double.parseDouble(str);
+                        number = Double.parseDouble(str.toString());
                         tok = TOKEN.TOK_DOUBLE;
                     } else {
                         throw new IllegalStateException("Unexpected value: " + getCharAtIndex());
@@ -98,28 +93,28 @@ public class ExprEval {
             return tok;
         }
 
-        public double getNumber(){
+        public double getNumber() {
             return number;
         }
 
     }
 
 
-    class Stack{
+    static class Stack {
         double[] stk;
-        int top_stack =0;
+        int top_stack;
 
         public Stack() {
             this.stk = new double[256];
-            this.top_stack =0;
+            this.top_stack = 0;
         }
 
-        public void clear(){
-            top_stack=0;
+        public void clear() {
+            top_stack = 0;
         }
 
         public void push(double dbl) {
-            if(top_stack==255){
+            if (top_stack == 255) {
                 System.out.println("Stack Overflow");
                 try {
                     throw new Exception();
@@ -129,8 +124,9 @@ public class ExprEval {
             }
             stk[top_stack++] = dbl;
         }
+
         public double pop() {
-            if(top_stack==0){
+            if (top_stack == 0) {
                 System.out.println("Stack underflow");
                 try {
                     throw new Exception();
@@ -142,7 +138,7 @@ public class ExprEval {
         }
     }
 
-    class RDParser extends Lexer{
+    public static class RDParser extends Lexer{
         TOKEN currentToken;
         Stack ValueStack = new Stack();
 
@@ -155,11 +151,11 @@ public class ExprEval {
             ValueStack.clear();
             currentToken = getToken();
             Expr();
-            double nd = ValueStack.pop();
-            return nd;
+            return ValueStack.pop();
         }
 
         private void Expr() {
+            // 2 * (2 + 2)
             TOKEN l_token;
             Term();
             while (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
@@ -168,12 +164,13 @@ public class ExprEval {
                 Expr();
                 double x = ValueStack.pop();
                 double y = ValueStack.pop();
-                ValueStack.push((l_token == TOKEN.TOK_PLUS) ? x+y : x-y);
+                ValueStack.push((l_token == TOKEN.TOK_PLUS) ? x + y : x - y);
             }
 
         }
 
         private void Term() {
+            //2*2
             TOKEN l_token;
             Factor();
 
@@ -183,25 +180,28 @@ public class ExprEval {
                 Term();
                 double x = ValueStack.pop();
                 double y = ValueStack.pop();
-                ValueStack.push((l_token == TOKEN.TOK_PLUS) ? x*y : x/y);
+                ValueStack.push((l_token == TOKEN.TOK_MUL) ? x * y : x / y);
             }
         }
 
         private void Factor() {
             TOKEN l_token;
-            if (currentToken ==TOKEN.TOK_DOUBLE ){
+            if (currentToken == TOKEN.TOK_DOUBLE) {
                 // push the values to stack
-                ValueStack.push(getNumber());
+                double number = getNumber();
+                ValueStack.push(number);
                 currentToken = getToken();
 
-            }
-            else if(currentToken == TOKEN.TOK_OPAREN){
+            } else if (currentToken == TOKEN.TOK_OPAREN) {
                 // at this point another expression can be found
                 // can be containing other expressions
                 // test1 ->  1 * (* 2)
                 // test2 -> 1 (*2)
+                currentToken = getToken();
+                // this is was hence the next token was not taken
+                // this is was hence the next token was not taken
                 Expr();
-                if(currentToken != TOKEN.TOK_CPAREN){
+                if (currentToken != TOKEN.TOK_CPAREN) {
                     System.out.println("Expected  closing parenthesis");
                     try {
                         throw new Exception("Expected  closing parenthesis");
@@ -209,8 +209,7 @@ public class ExprEval {
                         e.printStackTrace();
                     }
                 }
-            }
-            else if(currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB){
+            } else if (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
                 l_token = currentToken;
                 currentToken = getToken();
                 // there are chances that the next token can be illegal
@@ -218,10 +217,11 @@ public class ExprEval {
                 //
                 Factor();
                 double x = ValueStack.pop();
-                if(l_token == TOKEN.TOK_SUB){x = -x;}
+                if (l_token == TOKEN.TOK_SUB) {
+                    x = -x;
+                }
                 ValueStack.push(x);
-            }
-            else{
+            } else {
                 System.out.println("Illegal Token");
                 try {
                     throw new Exception("Illegal Token");
@@ -233,8 +233,5 @@ public class ExprEval {
 
     }
 
-
-
-
-
 }
+
