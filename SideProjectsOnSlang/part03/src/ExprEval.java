@@ -22,16 +22,16 @@ abstract class Expr {
     public abstract double accept(IExprVisitor exprVisitor);
 }
 
-@AllArgsConstructor
 class NumericConstant extends Expr {
 
-    public @Getter double _value;
+    private @Getter double value;
 
-    public double NUM = get_value();
+    //public double NUM { get { return _value; } }
 
-    public NumericConstant(double value) {
-        _value = value;
+    public NumericConstant(double _value) {
+        value = _value;
     }
+
 
     @Override
     public double accept(IExprVisitor exprVisitor) {
@@ -89,7 +89,7 @@ class StackEvaluator implements IExprVisitor {
 
     @Override
     public double Visit(NumericConstant num) {
-        evalStack.push(num.NUM);
+        evalStack.push(num.getValue());
         return 0;
     }
 
@@ -132,7 +132,7 @@ class TreeEvaluatorVisitor implements IExprVisitor{
 
     @Override
     public double Visit(NumericConstant num) {
-        return num.NUM;
+        return num.getValue();
     }
 
     @Override
