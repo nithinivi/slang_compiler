@@ -1,6 +1,5 @@
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Stack;
 
@@ -24,7 +23,8 @@ abstract class Expr {
 
 class NumericConstant extends Expr {
 
-    private @Getter double value;
+    private @Getter
+    double value;
 
     //public double NUM { get { return _value; } }
 
@@ -40,7 +40,6 @@ class NumericConstant extends Expr {
 }
 
 @Getter
-@Setter
 @AllArgsConstructor
 class BinaryExpr extends Expr {
     public Expr left;
@@ -71,7 +70,9 @@ class UnaryExpr extends Expr {
 
 interface IExprVisitor {
     double Visit(NumericConstant num);
+
     double Visit(BinaryExpr bin);
+
     double Visit(UnaryExpr un);
 }
 
@@ -83,7 +84,7 @@ class StackEvaluator implements IExprVisitor {
         return evalStack.pop();
     }
 
-    public StackEvaluator(Stack<Double> evalStack) {
+    public StackEvaluator() {
         this.evalStack.clear();
     }
 
@@ -102,11 +103,15 @@ class StackEvaluator implements IExprVisitor {
         if (bin.op == OPERATOR.PLUS) {
             evalStack.push(evalStack.pop() + evalStack.pop());
         } else if (bin.op == OPERATOR.MINUS) {
-            evalStack.push(evalStack.pop() - evalStack.pop());
+            Double right = evalStack.pop();
+            Double left = evalStack.pop();
+            evalStack.push(left-right);
         } else if (bin.op == OPERATOR.MUL) {
-            evalStack.push(evalStack.pop() / evalStack.pop());
-        } else if (bin.op == OPERATOR.DIV) {
             evalStack.push(evalStack.pop() * evalStack.pop());
+        } else if (bin.op == OPERATOR.DIV) {
+            Double right = evalStack.pop();
+            Double left = evalStack.pop();
+            evalStack.push(left / right);
         }
 
         return Double.NaN;
@@ -128,7 +133,7 @@ class StackEvaluator implements IExprVisitor {
 }
 
 
-class TreeEvaluatorVisitor implements IExprVisitor{
+class TreeEvaluatorVisitor implements IExprVisitor {
 
     @Override
     public double Visit(NumericConstant num) {
@@ -346,16 +351,16 @@ class RDParser extends Lexer {
     }
 }
 
-    class EntryPoint {
+class EntryPoint {
 
-        public static void main(String[] args) {
-            String stmt = "2*(2+2)";
-            RDParser parser = new RDParser(stmt);
-            Expr result = parser.callExpr();
-            System.out.println(result.accept(null));
+    public static void main(String[] args) {
+        String stmt = "3/(12-2)";
+        RDParser parser = new RDParser(stmt);
+        Expr nd = parser.callExpr();
+        StackEvaluator s = new StackEvaluator();
+        nd.accept(s);
+        System.out.println(s.getValue());
 
-        }
     }
-
-
+}
 
