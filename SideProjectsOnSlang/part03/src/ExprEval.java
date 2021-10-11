@@ -357,13 +357,15 @@ class EntryPoint {
         String stmt = "12*(3/(12-20))";
         RDParser parser = new RDParser(stmt);
         Expr nd = parser.callExpr();
+
+
         StackEvaluator s = new StackEvaluator();
         nd.accept(s);
         System.out.println(s.getValue());
 
         TreeEvaluatorVisitor t = new TreeEvaluatorVisitor();
         System.out.println(nd.accept(t));
-//        System.out.println(t);
+
     }
 }
 
