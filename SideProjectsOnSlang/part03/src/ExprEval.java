@@ -354,13 +354,16 @@ class RDParser extends Lexer {
 class EntryPoint {
 
     public static void main(String[] args) {
-        String stmt = "3/(12-2)";
+        String stmt = "12*(3/(12-20))";
         RDParser parser = new RDParser(stmt);
         Expr nd = parser.callExpr();
         StackEvaluator s = new StackEvaluator();
         nd.accept(s);
         System.out.println(s.getValue());
 
+        TreeEvaluatorVisitor t = new TreeEvaluatorVisitor();
+        System.out.println(nd.accept(t));
+//        System.out.println(t);
     }
 }
 
