@@ -260,13 +260,13 @@ class Extensons{
         return r;
     }
 
-    public  List<ItemList> FalttenExpr (Expr e){
+    public static List<ItemList> FlattenExpr(Expr e){
         FlattenVisitor f = new FlattenVisitor();
         e.accept(f);
         return f.flattenedExpr();
     }
 
-    public double evulate(List<ItemList> ls){
+    public static double evaluate(List<ItemList> ls){
         Stack<Double> stk  = new Stack<Double>();
 
         for (ItemList s :ls) {
@@ -495,9 +495,9 @@ class EntryPoint {
         nd.accept(s);
         System.out.println(s.getValue());
 
-        List<ItemList> lsrs =   nd.FalttenExprToList();
+        List<ItemList> lsrs =   Extensons.FlattenExpr(nd);
 //
-//        System.out.println(lsr);
+        System.out.println(Extensons.evaluate(lsrs));
 
     }
 }
