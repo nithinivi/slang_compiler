@@ -1,6 +1,7 @@
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -106,7 +107,7 @@ class StackEvaluator implements IExprVisitor {
         } else if (bin.op == OPERATOR.MINUS) {
             Double right = evalStack.pop();
             Double left = evalStack.pop();
-            evalStack.push(left-right);
+            evalStack.push(left - right);
         } else if (bin.op == OPERATOR.MUL) {
             evalStack.push(evalStack.pop() * evalStack.pop());
         } else if (bin.op == OPERATOR.DIV) {
@@ -169,7 +170,7 @@ enum ExprKind {
     OPERATOR, VALUE
 }
 
-class ItemList{
+class ItemList {
 
     public ExprKind knd;
     public double value;
@@ -179,14 +180,14 @@ class ItemList{
         op = OPERATOR.ILLEGAL;
     }
 
-    public boolean setOperator(OPERATOR op){
+    public boolean setOperator(OPERATOR op) {
         this.op = op;
         this.knd = ExprKind.OPERATOR;
         return true;
 
     }
 
-    public boolean setValue(double value){
+    public boolean setValue(double value) {
         this.value = value;
         this.knd = ExprKind.VALUE;
         return true;
@@ -196,17 +197,22 @@ class ItemList{
 
 }
 
-class FlattenVisitor implements  IExprVisitor{
+class FlattenVisitor implements IExprVisitor {
 
     List<ItemList> ils = null;
 
-    private ItemList MakeListItem(double num){
+    public FlattenVisitor() {
+        ils = new ArrayList<ItemList>();
+    }
+
+
+    private ItemList MakeListItem(double num) {
         ItemList temp = new ItemList();
         temp.setValue(num);
         return temp;
     }
 
-    private ItemList MakeListItem(OPERATOR op){
+    private ItemList MakeListItem(OPERATOR op) {
         ItemList temp = new ItemList();
         temp.setOperator(op);
         return temp;
@@ -214,9 +220,6 @@ class FlattenVisitor implements  IExprVisitor{
 
     public List<ItemList> flattenedExpr() {
         return ils;
-    }
-
-    public FlattenVisitor() {
     }
 
     @Override
@@ -236,44 +239,41 @@ class FlattenVisitor implements  IExprVisitor{
     @Override
     public double Visit(UnaryExpr un) {
         un.right.accept(this);
-        //ils.add(MakeListItem(un.op));
+        ils.add(MakeListItem(un.op));
         // is because the binary operation is used to express unary
         return 0;
     }
 }
 
 
-
-class Extensons{
-    public static Expr ParseOne()
-    {
+class Extensons {
+    public static Expr ParseOne() {
         Expr r = new BinaryExpr(new NumericConstant(2),
                 new BinaryExpr(new NumericConstant(3), new NumericConstant(4), OPERATOR.MUL),
                 OPERATOR.PLUS);
         return r;
     }
 
-    public static Expr ParseTwo()
-    {
+    public static Expr ParseTwo() {
         Expr r = new BinaryExpr(new NumericConstant(3), new NumericConstant(4), OPERATOR.MUL);
 
         return r;
     }
 
-    public static List<ItemList> FlattenExpr(Expr e){
+    public static List<ItemList> FlattenExpr(Expr e) {
         FlattenVisitor f = new FlattenVisitor();
         e.accept(f);
         return f.flattenedExpr();
     }
 
-    public static double evaluate(List<ItemList> ls){
-        Stack<Double> stk  = new Stack<Double>();
+    public static double evaluate(List<ItemList> ls) {
+        Stack<Double> stk = new Stack<Double>();
 
-        for (ItemList s :ls) {
-            if(s.knd == ExprKind.VALUE){
+        for (ItemList s : ls) {
+            if (s.knd == ExprKind.VALUE) {
                 stk.push(s.value);
-            }
-            else {
+                System.out.println(s.value);
+            } else {
                 switch (s.op) {
                     case PLUS:
                         stk.push(stk.pop() + stk.pop());
@@ -296,6 +296,7 @@ class Extensons{
     }
 
 }
+
 enum TOKEN {
     ILLEGAL_TOKEN,
     TOK_PLUS,
@@ -486,17 +487,8 @@ class RDParser extends Lexer {
 class EntryPoint {
 
     public static void main(String[] args) {
-        String stmt = "1+2";
-        RDParser parser = new RDParser(stmt);
-        Expr nd = parser.callExpr();
-
-
-        StackEvaluator s = new StackEvaluator();
-        nd.accept(s);
-        System.out.println(s.getValue());
-
-        List<ItemList> lsrs =   Extensons.FlattenExpr(nd);
-//
+        Expr nd = Extensions.ParseTwo();
+        List<ItemList> lsrs = Extensons.FlattenExpr(nd);
         System.out.println(Extensons.evaluate(lsrs));
 
     }
