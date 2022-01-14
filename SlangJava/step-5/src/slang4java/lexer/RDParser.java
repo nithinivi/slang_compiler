@@ -134,7 +134,7 @@ public class RDParser extends Lexer {
     private ArrayList statementList(COMPILATION_CONTEXT ctx) throws Exception {
         ArrayList arr = new ArrayList();
         while (currentToken != TOKEN.TOK_NULL) {
-            Stmt temp = Statement(ctx);
+            Statement temp = Statement(ctx);
             if (temp != null) {
                 arr.add(temp);
             }
@@ -142,8 +142,8 @@ public class RDParser extends Lexer {
         return arr;
     }
 
-    private Stmt Statement(COMPILATION_CONTEXT ctx) throws Exception {
-        Stmt returnValue = null;
+    private Statement Statement(COMPILATION_CONTEXT ctx) throws Exception {
+        Statement returnValue = null;
         switch (currentToken) {
             case TOK_VAR_BOOL, TOK_VAR_NUMBER, TOK_VAR_STRING -> {
                 returnValue = ParseVariableDeclStatement(ctx);
@@ -182,7 +182,7 @@ public class RDParser extends Lexer {
     }
 
 
-    private Stmt ParseVariableDeclStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParseVariableDeclStatement(COMPILATION_CONTEXT ctx) throws Exception {
         TOKEN tok = currentToken;
         getNext();
         if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
@@ -209,7 +209,7 @@ public class RDParser extends Lexer {
         }
     }
 
-    private Stmt ParseAssignmentStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParseAssignmentStatement(COMPILATION_CONTEXT ctx) throws Exception {
         // Retrive the variable and look if up
         // the symbol table. if not found throw Exception
 
@@ -249,7 +249,7 @@ public class RDParser extends Lexer {
     }
 
 
-    private Stmt ParsePrintLnStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParsePrintLnStatement(COMPILATION_CONTEXT ctx) throws Exception {
         getNext();
         Expression a = Expr(ctx);
         if (currentToken != TOKEN.TOK_SEMI) {
@@ -259,7 +259,7 @@ public class RDParser extends Lexer {
     }
 
 
-    private Stmt ParsePrintStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParsePrintStatement(COMPILATION_CONTEXT ctx) throws Exception {
         getNext();
         Expression a = Expr(ctx);
         if (currentToken != TOKEN.TOK_SEMI) {

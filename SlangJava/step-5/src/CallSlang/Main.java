@@ -3,7 +3,7 @@ package CallSlang;
 import slang4java.context.COMPILATION_CONTEXT;
 import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.lexer.RDParser;
-import slang4java.statements.Stmt;
+import slang4java.statements.Statement;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class Main {
         ArrayList stmts = pars.Parse(ctx);
         RUNTIEM_CONTEXT rtx = new RUNTIEM_CONTEXT();
         for (Object o : stmts) {
-            Stmt s = (Stmt) o;
+            Statement s = (Statement) o;
             s.Execute(rtx);
         }
     }

@@ -5,7 +5,7 @@ import slang4java.expressions.Expression;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class PrintLineStatement extends Stmt{
+public class PrintLineStatement extends Statement {
 
     private Expression _ex;
 

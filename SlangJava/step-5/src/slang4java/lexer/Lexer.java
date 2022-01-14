@@ -85,6 +85,57 @@ public class Lexer {
                         index++;
                     }
                 }
+                case '=' -> {
+                    if (expression.charAt(index + 1) == '=') {
+                        tok = TOKEN.TOK_EQ;
+                        index += 2;
+                    } else {
+                        tok = TOKEN.TOK_ASSIGN;
+                        index++;
+                    }
+                }
+                case '!' -> {
+                    tok = TOKEN.TOK_NOT;
+                }
+                case '>' -> {
+                    if (expression.charAt(index + 1) == '=') {
+                        tok = TOKEN.TOK_GTE;
+                        index += 2;
+                    } else {
+                        tok = TOKEN.TOK_GT;
+                        index++;
+                    }
+                }
+                case '<' -> {
+                    if (expression.charAt(index + 1) == '=') {
+                        tok = TOKEN.TOK_LTE;
+                        index += 2;
+                    } else if (expression.charAt(index + 1) == '>') {
+                        tok = TOKEN.TOK_NEQ;
+                        index += 2;
+                    } else {
+                        tok = TOKEN.TOK_LT;
+                        index++;
+                    }
+                }
+                case '&' -> {
+                    if (expression.charAt(index + 1) == '&') {
+                        tok = TOKEN.TOK_AND;
+                        index += 2;
+                    } else {
+                        tok = TOKEN.ILLEGAL_TOKEN;
+                        index++;
+                    }
+                }
+                case '|' -> {
+                    if (expression.charAt(index + 1) == '|') {
+                        tok = TOKEN.TOK_OR;
+                        index += 2;
+                    } else {
+                        tok = TOKEN.ILLEGAL_TOKEN;
+                        index++;
+                    }
+                }
                 case '(' -> {
                     tok = TOKEN.TOK_OPREN;
                     index++;
@@ -97,10 +148,6 @@ public class Lexer {
                     tok = TOKEN.TOK_SEMI;
                     index++;
                 }
-                case '=' -> {
-                    tok = TOKEN.TOK_ASSIGN;
-                    index++;
-                }
                 case '"' -> {
                     String tempString = "";
                     index++;
@@ -109,17 +156,15 @@ public class Lexer {
                         tempString += expression.charAt(index);
                         index++;
                     }
-                    if(index == length) {
+                    if (index == length) {
                         tok = TOKEN.ILLEGAL_TOKEN;
-
-                        return tok;
                     } else {
                         index++;
                         string = tempString;
                         tok = TOKEN.TOK_STRING;
 
-                        return tok;
                     }
+                    return tok;
                 }
 
                 default -> {
@@ -134,10 +179,10 @@ public class Lexer {
                         }
 
                         // Cover the decimal points
-                        if (expression.charAt(index) =='.'){
-                            tempString+='.';
+                        if (expression.charAt(index) == '.') {
+                            tempString += '.';
                             index++;
-                            while (index<length && Character.isDigit(expression.charAt(index))){
+                            while (index < length && Character.isDigit(expression.charAt(index))) {
                                 tempString += expression.charAt(index);
                                 index++;
                             }

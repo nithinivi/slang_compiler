@@ -5,7 +5,7 @@ import slang4java.expressions.Expression;
 import slang4java.expressions.Variable;
 import slang4java.metainfo.SymbolInfo;
 
-public class AssignmentStatement extends Stmt{
+public class AssignmentStatement extends Statement {
     private Variable variable;
     private Expression expression;
 
