@@ -7,12 +7,11 @@ import java.util.HashMap;
 public class SymbolTable {
     HashMap<String, SymbolInfo> dt = new HashMap<String, SymbolInfo>();
 
-    public boolean Add(SymbolInfo s){
+    public void Add(SymbolInfo s) {
         dt.put(s.SymbolName, s);
-        return true;
     }
 
-    public SymbolInfo Get(String symbolname){
+    public SymbolInfo getSymbol(String symbolname) {
         return dt.get(symbolname);
     }
 

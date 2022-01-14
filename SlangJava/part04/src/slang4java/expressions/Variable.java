@@ -1,6 +1,5 @@
 package slang4java.expressions;
 
-import lombok.Getter;
 import lombok.Setter;
 import slang4java.context.COMPILATION_CONTEXT;
 import slang4java.context.RUNTIEM_CONTEXT;
@@ -9,7 +8,6 @@ import slang4java.metainfo.TypeInfo;
 
 public class Variable extends Exp {
 
-    @Getter
     @Setter
     private String var_name;
     private TypeInfo _type;
@@ -60,7 +58,7 @@ public class Variable extends Exp {
 
             return null;
         } else {
-            SymbolInfo symbolInfo = cont.getSymbolTable().Get(var_name);
+            SymbolInfo symbolInfo = cont.getSymbolTable().getSymbol(var_name);
             return symbolInfo;
         }
     }
@@ -69,7 +67,7 @@ public class Variable extends Exp {
     @Override
     public TypeInfo TypeCheck(COMPILATION_CONTEXT cont) {
         if (cont.getSymbolTable() != null) {
-            SymbolInfo symbolInfo = cont.getSymbolTable().Get(var_name);
+            SymbolInfo symbolInfo = cont.getSymbolTable().getSymbol(var_name);
             if (symbolInfo != null) {
                 _type = symbolInfo.Type;
                 return _type;
@@ -82,4 +80,9 @@ public class Variable extends Exp {
     public TypeInfo GetType() {
         return _type;
     }
+
+    public String getVar_name() {
+        return var_name;
+    }
+
 }

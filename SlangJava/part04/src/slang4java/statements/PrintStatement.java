@@ -2,6 +2,8 @@ package slang4java.statements;
 
 import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.expressions.Exp;
+import slang4java.metainfo.SymbolInfo;
+import slang4java.metainfo.TypeInfo;
 
 public class PrintStatement extends Stmt{
 
@@ -12,11 +14,22 @@ public class PrintStatement extends Stmt{
     }
 
     @Override
-    public boolean Execute(RUNTIEM_CONTEXT cont) {
+    public SymbolInfo Execute(RUNTIEM_CONTEXT cont) {
 
-        double a= _ex.Evaluate(cont);
-        System.out.print(String.valueOf(a));
-        return  true;
+        SymbolInfo val = null;
+        try {
+            val = _ex.Evaluate(cont);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (val.Type == TypeInfo.TYPE_NUMERIC) {
+            System.out.print(val.DoubleValue);
+        } else if (val.Type == TypeInfo.TYPE_STRING) {
+            System.out.print(val.StringValue);
+        } else {
+            System.out.print(val.BoolValue);
+        }
+        return null;
 
     }
 }

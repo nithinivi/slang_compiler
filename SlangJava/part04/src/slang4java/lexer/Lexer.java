@@ -1,134 +1,220 @@
 package slang4java.lexer;
 
-import java.util.Locale;
-
 public class Lexer {
 
-    String iExpr;
+    String expression;
     int index;
     double number;
     private int length;
-    private ValueTable[] _val = null;
-    private String lastStr;
+    private String string;
 
+    private ValueTable[] keywords = null;
 
-    public Lexer(String iExpr) {
-        this.iExpr = iExpr;
-        length = iExpr.length();
-        index = 0;
+    public Lexer(String expression) {
+        this.expression = expression;
+        this.length = this.expression.length();
+        this.index = 0;
 
-        _val = new ValueTable[2];
-        _val[0] = new ValueTable(TOKEN.TOK_PRINT, "PRINT");
-        _val[1] = new ValueTable(TOKEN.TOK_PRINTLN, "PRINTLINE");
+        this.keywords = new ValueTable[7];
+        this.keywords[0] = new ValueTable(TOKEN.TOK_BOOL_FALSE, "FALSE");
+        this.keywords[1] = new ValueTable(TOKEN.TOK_BOOL_TRUE, "TRUE");
+        this.keywords[2] = new ValueTable(TOKEN.TOK_VAR_STRING, "STRING");
+        this.keywords[3] = new ValueTable(TOKEN.TOK_VAR_BOOL, "BOOLEAN");
+        this.keywords[4] = new ValueTable(TOKEN.TOK_VAR_NUMBER, "NUMERIC");
+        this.keywords[5] = new ValueTable(TOKEN.TOK_PRINT, "PRINT");
+        this.keywords[6] = new ValueTable(TOKEN.TOK_PRINTLN, "PRINTLINE");
     }
 
-    public TOKEN getToken() {
-        TOKEN tok = TOKEN.ILLEGAL_TOKEN;
-
-        while (index < length && iExpr.toCharArray()[index] == ' ' || index < length && iExpr.toCharArray()[index] == '\t')
-            index++;
-
-        // if end of string
-        if (index == length) {
-            return TOKEN.TOK_NULL;
-        }
-        switch (iExpr.toCharArray()[index]) {
-            case '+' -> {
-                tok = TOKEN.TOK_PLUS;
-                index++;
-                break;
-            }
-            case '-' -> {
-                tok = TOKEN.TOK_SUB;
-                index++;
-                break;
-            }
-            case '*' -> {
-                tok = TOKEN.TOK_MUL;
-                index++;
-                break;
-            }
-            case '/' -> {
-                tok = TOKEN.TOK_DIV;
-                index++;
-                break;
-            }
-            case '(' -> {
-                tok = TOKEN.TOK_OPREN;
-                index++;
-                break;
-            }
-            case ')' -> {
-                tok = TOKEN.TOK_CPREN;
-                index++;
-                break;
-            }
-            case ';' -> {
-                tok = TOKEN.TOK_SEMI;
-                index++;
-                break;
-            }
-            default -> {
-
-                if (Character.isDigit(iExpr.toCharArray()[index])) {
-                    String str = "";
-                    while (index < length && (iExpr.toCharArray()[index] == '0'
-                            || iExpr.toCharArray()[index] == '1'
-                            || iExpr.toCharArray()[index] == '2'
-                            || iExpr.toCharArray()[index] == '3'
-                            || iExpr.toCharArray()[index] == '4'
-                            || iExpr.toCharArray()[index] == '5'
-                            || iExpr.toCharArray()[index] == '6'
-                            || iExpr.toCharArray()[index] == '7'
-                            || iExpr.toCharArray()[index] == '8'
-                            || iExpr.toCharArray()[index] == '9')) {
-                        str += (iExpr.toCharArray()[index]);
-                        index++;
-                    }
-                    number = Double.parseDouble(str);
-                    tok = TOKEN.TOK_DOUBLE;
-                } else if (Character.isLetter(iExpr.toCharArray()[index])) {
-                    String temp = "";
-                    while (index < length && Character.isLetterOrDigit(iExpr.toCharArray()[index]) ||
-                            iExpr.toCharArray()[index] == '_') {
-                        temp += String.valueOf(iExpr.toCharArray()[index]);
-                        index++;
-                    }
-
-                    temp = temp.toUpperCase();
-
-                    for (int i = 0; i < this._val.length; ++i) {
-                        if (_val[i].Value.compareTo(temp) == 0) {
-                            return _val[i].tok;
-                        }
-                    }
-                    this.lastStr = temp;
-                    return TOKEN.TOK_UNQUOTED_STRING;
-
-
-                } else {
-                    throw new IllegalStateException("Unexpected value: " + iExpr.toCharArray()[index]);
-                }
-                //            default ->
-            }
-        }
-
-        return tok;
-
+    public int getIndex() {
+        return index;
     }
 
     public double getNumber() {
         return number;
     }
-}
 
-class ValueTable {
-    public TOKEN tok;
-    public String Value;
-
-    public ValueTable(TOKEN tok, String Value) {
-        this.tok = tok;
-        this.Value = Value;
+    public String getString() {
+        return string;
     }
+
+    public TOKEN getToken() {
+        TOKEN tok;
+        boolean restart;
+
+        do {
+            restart = false;
+            tok = TOKEN.ILLEGAL_TOKEN;
+
+            while (index < length && (
+                expression.charAt(index) == ' ' ||
+                    expression.charAt(index) == '\t' ||
+                    System.lineSeparator().contains(
+                        String.valueOf(expression.charAt(index)))))
+                index++;
+
+            // if end of string
+            if (index == length) {
+                return TOKEN.TOK_NULL;
+            }
+            switch (expression.charAt(index)) {
+                case '+' -> {
+                    tok = TOKEN.TOK_PLUS;
+                    index++;
+                }
+                case '-' -> {
+                    tok = TOKEN.TOK_SUB;
+                    index++;
+                }
+                case '*' -> {
+                    tok = TOKEN.TOK_MUL;
+                    index++;
+                }
+                case '/' -> {
+                    if (expression.charAt(index + 1) == '/') {
+                        skipToNextLine();
+                        restart = true;
+                    } else {
+                        tok = TOKEN.TOK_DIV;
+                        index++;
+                    }
+                }
+                case '(' -> {
+                    tok = TOKEN.TOK_OPREN;
+                    index++;
+                }
+                case ')' -> {
+                    tok = TOKEN.TOK_CPREN;
+                    index++;
+                }
+                case ';' -> {
+                    tok = TOKEN.TOK_SEMI;
+                    index++;
+                }
+                case '=' -> {
+                    tok = TOKEN.TOK_ASSIGN;
+                    index++;
+                }
+                case '"' -> {
+                    String tempString = "";
+                    index++;
+
+                    while (index < length && expression.charAt(index) != '"') {
+                        tempString += expression.charAt(index);
+                        index++;
+                    }
+                    if(index == length) {
+                        tok = TOKEN.ILLEGAL_TOKEN;
+
+                        return tok;
+                    } else {
+                        index++;
+                        string = tempString;
+                        tok = TOKEN.TOK_STRING;
+
+                        return tok;
+                    }
+                }
+
+                default -> {
+
+                    if (Character.isDigit(expression.charAt(index))) {
+
+                        String tempString = "";
+                        while (index < length && Character.isDigit(expression.charAt(index))
+                        ) {
+                            tempString += (expression.charAt(index));
+                            index++;
+                        }
+
+                        // Cover the decimal points
+                        if (expression.charAt(index) =='.'){
+                            tempString+='.';
+                            index++;
+                            while (index<length && Character.isDigit(expression.charAt(index))){
+                                tempString += expression.charAt(index);
+                                index++;
+                            }
+                        }
+
+                        number = Double.parseDouble(tempString);
+                        tok = TOKEN.TOK_NUMERIC;
+
+                    } else if (Character.isLetter(expression.charAt(index))) {
+                        String tempString = "";
+                        while (index < length &&
+                            Character.isLetterOrDigit(expression.charAt(index)) ||
+                            expression.charAt(index) == '_') {
+
+                            tempString += String.valueOf(expression.charAt(index));
+                            index++;
+                        }
+
+                        tempString = tempString.toUpperCase();
+
+                        for (ValueTable keyword : keywords) {
+                            if (keyword.Value.compareTo(tempString) == 0) {
+                                return keyword.tok;
+                            }
+                        }
+
+                        this.string = tempString;
+                        tok = TOKEN.TOK_UNQUOTED_STRING;
+
+                    } else {
+                        tok = TOKEN.ILLEGAL_TOKEN;
+                    }
+                }
+            }
+        } while (restart);
+
+        return tok;
+
+    }
+
+    public String getCurrentLine(int pindex) {
+        int tindex = pindex;
+
+        if (pindex >= length) {
+            tindex = length - 1;
+        }
+
+        while ((tindex > 0) && (expression.charAt(tindex) != '\n')) {
+            tindex--;
+        }
+
+        if (expression.charAt(tindex) != '\n') {
+            tindex++;
+        }
+
+        String currentLine = "";
+        while ((tindex > 0) && (expression.charAt(tindex) != '\n')) {
+            currentLine = currentLine + expression.charAt(tindex);
+            tindex++;
+        }
+
+        return currentLine;
+    }
+
+    //skip to next line
+    private void skipToNextLine() {
+
+        // move the index to the end of line
+        while (index < length
+            && !System.lineSeparator().contains(
+            String.valueOf(expression.charAt(index)))) {
+            index++;
+        }
+
+        // moves over the line separator characters
+        while (index < length
+            && System.lineSeparator().contains(
+            String.valueOf((expression.charAt(index))))) {
+            index++;
+
+        }
+
+    }
+
+
 }
 

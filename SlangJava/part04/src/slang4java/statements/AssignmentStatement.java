@@ -9,8 +9,8 @@ public class AssignmentStatement extends Stmt{
     private Variable variable;
     private Exp exp;
 
-    public AssignmentStatement(Variable variable, Exp exp) {
-        this.variable = variable;
+    public AssignmentStatement(SymbolInfo variable, Exp exp) {
+        this.variable = new Variable(variable);
         this.exp = exp;
     }
 

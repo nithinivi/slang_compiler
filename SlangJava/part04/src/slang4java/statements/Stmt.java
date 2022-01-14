@@ -5,6 +5,6 @@ import slang4java.metainfo.SymbolInfo;
 
 public abstract class Stmt {
 
-    public abstract SymbolInfo Execute(RUNTIEM_CONTEXT cont);
+    public abstract SymbolInfo Execute(RUNTIEM_CONTEXT cont) throws Exception;
 }
 

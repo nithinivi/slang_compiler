@@ -1,8 +1,6 @@
 package slang4java.statements;
 
-import slang4java.context.COMPILATION_CONTEXT;
 import slang4java.context.RUNTIEM_CONTEXT;
-import slang4java.expressions.Exp;
 import slang4java.expressions.Variable;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;

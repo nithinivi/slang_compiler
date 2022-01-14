@@ -1,22 +1,33 @@
 package CallSlang;
 
-import slang4java.lexer.RDPaser;
+import slang4java.context.COMPILATION_CONTEXT;
+import slang4java.context.RUNTIEM_CONTEXT;
+import slang4java.lexer.RDParser;
 import slang4java.statements.Stmt;
 
+import java.io.*;
 import java.util.ArrayList;
 
 public class Main {
 
-    public static void main(String[] args) {
-        String a = "PRINTLINE 2*10; ";
-        RDPaser p = new RDPaser(a);
-        ArrayList arr = p.Parse();
-        for (Object obj : arr) {
-            Stmt s = ((Stmt) obj);
-            s.Execute(null);
-            
+    public static void main(String[] args) throws Exception {
+        byte[] b;
+        try (InputStream stream = new FileInputStream(
+                "/home/nithihn/learn/slang_compiler/SlangJava/part04/src/CallSlang/third.sl")) {
+            b = new byte[stream.available()];
+            int read = stream.read(b);
         }
-
+        String program = new String(b);
+        RDParser pars = null;
+        pars = new RDParser(program);
+        COMPILATION_CONTEXT ctx = new COMPILATION_CONTEXT();
+        ArrayList stmts = pars.Parse(ctx);
+        RUNTIEM_CONTEXT rtx = new RUNTIEM_CONTEXT();
+        for (Object o : stmts) {
+            Stmt s = (Stmt) o;
+            s.Execute(rtx);
+        }
     }
 }
+
 

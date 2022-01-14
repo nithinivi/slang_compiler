@@ -5,11 +5,11 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class UniaryPlus extends Exp {
+public class UnaryPlus extends Exp {
     private Exp exp;
     private TypeInfo _type;
 
-    public UniaryPlus(Exp exp) {
+    public UnaryPlus(Exp exp) {
         this.exp = exp;
     }
 
