@@ -6,10 +6,10 @@ import slang4java.procedure.Procedure;
 
 import java.util.ArrayList;
 
-public class Module {
+public class TModule {
     private ArrayList<Procedure> procedures;
 
-    public Module(ArrayList<Procedure> procedures) {
+    public TModule(ArrayList<Procedure> procedures) {
         this.procedures = procedures;
     }
 

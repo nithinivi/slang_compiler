@@ -6,10 +6,14 @@
 
 package slang4java.lexer;
 
+import slang4java.builder.ProcedureBuilder;
+import slang4java.builder.TModuleBuilder;
+import slang4java.complationUnits.TModule;
 import slang4java.context.COMPILATION_CONTEXT;
 import slang4java.expressions.*;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
+import slang4java.procedure.Procedure;
 import slang4java.statements.*;
 import slang4java.support.CParserException;
 import slang4java.support.CSyntaxErrorLog;
@@ -21,18 +25,21 @@ public class RDParser extends Lexer {
 
     protected TOKEN currentToken;  // current token
     protected TOKEN lastToken;     // penultimate token
+    TModuleBuilder prog = null;
 
     public RDParser(String iExpr) {
         super(iExpr);
+        prog = new TModuleBuilder();
+
     }
 
-    public Expression callExpr(COMPILATION_CONTEXT ctx) {
+    public Expression callExpr(ProcedureBuilder ctx) {
         currentToken = getToken();
         return Expr(ctx);
 
     }
 
-    private Expression Expr(COMPILATION_CONTEXT ctx) {
+    private Expression Expr(ProcedureBuilder ctx) {
         TOKEN l_token;
         Expression returnValue = Term(ctx);
 
@@ -49,7 +56,7 @@ public class RDParser extends Lexer {
         return returnValue;
     }
 
-    private Expression Term(COMPILATION_CONTEXT ctx) {
+    private Expression Term(ProcedureBuilder ctx) {
         TOKEN l_token;
         Expression returnValue = null;
         try {
@@ -72,7 +79,7 @@ public class RDParser extends Lexer {
 
     }
 
-    private Expression Factor(COMPILATION_CONTEXT ctx) throws Exception {
+    private Expression Factor(ProcedureBuilder ctx) throws Exception {
         TOKEN l_token;
         Expression returnValue = null;
 
@@ -126,12 +133,25 @@ public class RDParser extends Lexer {
         return returnValue;
     }
 
-    public ArrayList Parse(COMPILATION_CONTEXT ctx) throws Exception {
+    public ArrayList Parse(ProcedureBuilder ctx) throws Exception {
         getNext();
         return statementList(ctx);
     }
 
-    private ArrayList statementList(COMPILATION_CONTEXT ctx) throws Exception {
+    public TModule doParse() throws Exception {
+        ProcedureBuilder procedureBuilder = new ProcedureBuilder("MAIN",
+            new COMPILATION_CONTEXT());
+        ArrayList statements = Parse(procedureBuilder);
+        for (Object s : statements) {
+            Statement statement = (Statement) s;
+            procedureBuilder.addStatement(statement);
+        }
+        Procedure procedure = procedureBuilder.GetProcedure();
+        prog.add(procedure);
+        return prog.GetProgram();
+    }
+
+    private ArrayList statementList(ProcedureBuilder ctx) throws Exception {
         ArrayList arr = new ArrayList();
         while (currentToken != TOKEN.TOK_NULL) {
             Statement temp = Statement(ctx);
@@ -142,7 +162,7 @@ public class RDParser extends Lexer {
         return arr;
     }
 
-    private Statement Statement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement Statement(ProcedureBuilder ctx) throws Exception {
         Statement returnValue = null;
         switch (currentToken) {
             case TOK_VAR_BOOL, TOK_VAR_NUMBER, TOK_VAR_STRING -> {
@@ -182,7 +202,7 @@ public class RDParser extends Lexer {
     }
 
 
-    private Statement ParseVariableDeclStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParseVariableDeclStatement(ProcedureBuilder ctx) throws Exception {
         TOKEN tok = currentToken;
         getNext();
         if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
@@ -209,7 +229,7 @@ public class RDParser extends Lexer {
         }
     }
 
-    private Statement ParseAssignmentStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParseAssignmentStatement(ProcedureBuilder ctx) throws Exception {
         // Retrive the variable and look if up
         // the symbol table. if not found throw Exception
 
@@ -235,7 +255,7 @@ public class RDParser extends Lexer {
         Expression expression = Expr(ctx);
 
         //type check
-        if (expression.TypeCheck(ctx) != symbol.Type) {
+        if (expression.TypeCheck(ctx.getContext()) != symbol.Type) {
             throw new Exception("Type mismatch is assignment");
         }
 
@@ -249,7 +269,7 @@ public class RDParser extends Lexer {
     }
 
 
-    private Statement ParsePrintLnStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParsePrintLnStatement(ProcedureBuilder ctx) throws Exception {
         getNext();
         Expression a = Expr(ctx);
         if (currentToken != TOKEN.TOK_SEMI) {
@@ -259,9 +279,11 @@ public class RDParser extends Lexer {
     }
 
 
-    private Statement ParsePrintStatement(COMPILATION_CONTEXT ctx) throws Exception {
+    private Statement ParsePrintStatement(ProcedureBuilder ctx) throws Exception {
         getNext();
         Expression a = Expr(ctx);
+
+        a.TypeCheck(ctx.getContext());
         if (currentToken != TOKEN.TOK_SEMI) {
 
             throw new Exception("expected ; ");

@@ -15,7 +15,7 @@ public class Lexer {
         this.length = this.expression.length();
         this.index = 0;
 
-        this.keywords = new ValueTable[7];
+        this.keywords = new ValueTable[13];
         this.keywords[0] = new ValueTable(TOKEN.TOK_BOOL_FALSE, "FALSE");
         this.keywords[1] = new ValueTable(TOKEN.TOK_BOOL_TRUE, "TRUE");
         this.keywords[2] = new ValueTable(TOKEN.TOK_VAR_STRING, "STRING");

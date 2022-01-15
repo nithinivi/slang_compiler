@@ -1,16 +1,17 @@
 package slang4java.builder;
 
-import slang4java.complationUnits.Module;
+import slang4java.complationUnits.TModule;
 import slang4java.procedure.Procedure;
 
 import java.util.ArrayList;
 
-public class ModuleBuilder extends AbstractBuilder {
+public class TModuleBuilder extends AbstractBuilder {
     private ArrayList<Procedure> procs;        // array of procedures
-    private ArrayList protos = null;       // array of function prototypes
+    private ArrayList protos;       // array of function prototypes
 
-    public ModuleBuilder(ArrayList<Procedure> procs) {
-        this.procs = procs;
+    public TModuleBuilder() {
+        this.procs = new ArrayList<>();
+        this.protos = null;
     }
 
     public boolean add(Procedure p) {
@@ -18,8 +19,8 @@ public class ModuleBuilder extends AbstractBuilder {
         return true;
     }
 
-    public Module GetProgram() {
-        return new Module(procs);
+    public TModule GetProgram() {
+        return new TModule(procs);
     }
 
     public Procedure getProc(String name) {
