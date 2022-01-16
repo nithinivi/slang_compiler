@@ -15,7 +15,7 @@ public class Lexer {
         this.length = this.expression.length();
         this.index = 0;
 
-        this.keywords = new ValueTable[13];
+        this.keywords = new ValueTable[16];
         this.keywords[0] = new ValueTable(TOKEN.TOK_BOOL_FALSE, "FALSE");
         this.keywords[1] = new ValueTable(TOKEN.TOK_BOOL_TRUE, "TRUE");
         this.keywords[2] = new ValueTable(TOKEN.TOK_VAR_STRING, "STRING");
@@ -30,6 +30,11 @@ public class Lexer {
         this.keywords[10] = new ValueTable(TOKEN.TOK_ENDIF, "ENDIF");
         this.keywords[11] = new ValueTable(TOKEN.TOK_WHILE, "WHILE");
         this.keywords[12] = new ValueTable(TOKEN.TOK_WEND, "WEND");
+
+
+        keywords[13] = new ValueTable(TOKEN.TOK_END, "END");
+        keywords[14] = new ValueTable(TOKEN.TOK_FUNCTION, "FUNCTION");
+        keywords[15] = new ValueTable(TOKEN.TOK_RETURN, "RETURN");
     }
 
     public int getIndex() {
@@ -94,6 +99,14 @@ public class Lexer {
                         index++;
                     }
                 }
+                case ',' -> {
+                    tok = TOKEN.TOK_COMMA;
+                    index++;
+                }
+                case ';' -> {
+                    tok = TOKEN.TOK_SEMI;
+                    index++;
+                }
                 case '!' -> {
                     tok = TOKEN.TOK_NOT;
                 }
@@ -142,10 +155,6 @@ public class Lexer {
                 }
                 case ')' -> {
                     tok = TOKEN.TOK_CPREN;
-                    index++;
-                }
-                case ';' -> {
-                    tok = TOKEN.TOK_SEMI;
                     index++;
                 }
                 case '"' -> {

@@ -1,33 +1,33 @@
 /*
-* <Module> ::= {<Procedure>}+;
-* <Procedure>::= FUNCTION <type> func_name ‘(‘ arglist ‘)’
-* <stmts>
-* END
-* <type> := NUMERIC | STRING | BOOLEAN
-* arglist ::= '(' {} ')' | '(' <type> arg_name [, arglist ] ')'
-* <stmts> := { stmt }+
-* {stmt} := <vardeclstmt> | <printstmt>|<printlnstmt>
-* <assignmentstmt>|<callstmt>|<ifstmt>|
-* <whilestmt> | <returnstmt>
-* <vardeclstmt> ::= <type> var_name;
-* <printstmt> := PRINT <expr>;
-* <assignmentstmt>:= <variable> = value;
-* <ifstmt>::= IF <expr> THEN <stmts> [ ELSE <stmts> ] ENDIF
-* <whilestmt>::= WHILE <expr> <stmts> WEND
-* <returnstmt>:= Return <expr>
-* <expr> ::= <BExpr>
-* <BExpr> ::= <LExpr> LOGIC_OP <BExpr>
-* <LExpr> ::= <RExpr> REL_OP <LExpr>
-* <RExpr> ::= <Term> ADD_OP <RExpr>
-* <Term>::= <Factor> MUL_OP <Term>
-* <Factor> ::= <Numeric> | <String> | TRUE | FALSE | <variable> | ‘(‘ <expr> ‘)’ | {+|-|!}
-* <Factor> | <callexpr>
-* <callexpr> ::= funcname ‘(‘ actuals ‘)’
-* <LOGIC_OP> := '&&' | ‘||’
-* <REL_OP> := '>' |' < '|' >=' |' <=' |' <>' |' =='
-* <MUL_OP> := '*' |' /'
-* <ADD_OP> := '+' |' -'
-* */
+ * <Module> ::= {<Procedure>}+;
+ * <Procedure>::= FUNCTION <type> func_name ‘(‘ arglist ‘)’
+ * <stmts>
+ * END
+ * <type> := NUMERIC | STRING | BOOLEAN
+ * arglist ::= '(' {} ')' | '(' <type> arg_name [, arglist ] ')'
+ * <stmts> := { stmt }+
+ * {stmt} := <vardeclstmt> | <printstmt>|<printlnstmt>
+ * <assignmentstmt>|<callstmt>|<ifstmt>|
+ * <whilestmt> | <returnstmt>
+ * <vardeclstmt> ::= <type> var_name;
+ * <printstmt> := PRINT <expr>;
+ * <assignmentstmt>:= <variable> = value;
+ * <ifstmt>::= IF <expr> THEN <stmts> [ ELSE <stmts> ] ENDIF
+ * <whilestmt>::= WHILE <expr> <stmts> WEND
+ * <returnstmt>:= Return <expr>
+ * <expr> ::= <BExpr>
+ * <BExpr> ::= <LExpr> LOGIC_OP <BExpr>
+ * <LExpr> ::= <RExpr> REL_OP <LExpr>
+ * <RExpr> ::= <Term> ADD_OP <RExpr>
+ * <Term>::= <Factor> MUL_OP <Term>
+ * <Factor> ::= <Numeric> | <String> | TRUE | FALSE | <variable> | ‘(‘ <expr> ‘)’ | {+|-|!}
+ * <Factor> | <callexpr>
+ * <callexpr> ::= funcname ‘(‘ actuals ‘)’
+ * <LOGIC_OP> := '&&' | ‘||’
+ * <REL_OP> := '>' |' < '|' >=' |' <=' |' <>' |' =='
+ * <MUL_OP> := '*' |' /'
+ * <ADD_OP> := '+' |' -'
+ * */
 
 package slang4java.lexer;
 
@@ -95,7 +95,7 @@ public class RDParser extends Lexer {
     }
 
     // parse single function
-    public ProcedureBuilder ParseFunction() throws Exception {
+    public ProcedureBuilder parseFunction() throws Exception {
         ProcedureBuilder procedureBuilder = new ProcedureBuilder("", new COMPILATION_CONTEXT());
         if (currentToken != TOKEN.TOK_FUNCTION)
             return null;
@@ -339,21 +339,49 @@ public class RDParser extends Lexer {
     }
 
     public TModule doParse() throws Exception {
-        ProcedureBuilder procedureBuilder = new ProcedureBuilder("MAIN", new COMPILATION_CONTEXT());
-        ArrayList<Statement> statements = Parse(procedureBuilder);
-        for (Statement s : statements) {
-            procedureBuilder.addStatement(s);
+
+
+        try {
+
+            getNext();
+            return parseFunctions();
+        } catch (Exception e) {
+            System.out.println("error while parsing");
+            System.out.println(e.toString());
+            ;
+            e.printStackTrace();
         }
-        Procedure procedure = procedureBuilder.GetProcedure();
-        prog.add(procedure);
+        return null;
+//        ProcedureBuilder procedureBuilder = new ProcedureBuilder("MAIN", new COMPILATION_CONTEXT());
+//        ArrayList<Statement> statements = Parse(procedureBuilder);
+//        for (Statement s : statements) {
+//            procedureBuilder.addStatement(s);
+//        }
+//        Procedure procedure = procedureBuilder.GetProcedure();
+//        prog.add(procedure);
+//        return prog.GetProgram();
+    }
+
+    private TModule parseFunctions() throws Exception {
+        while (currentToken == TOKEN.TOK_FUNCTION) {
+            ProcedureBuilder procedureBuilder = parseFunction();
+            Procedure procedure = procedureBuilder.getProcedure();
+            if (procedure == null) {
+                System.out.println("error while parsing function");
+                return null;
+            }
+            prog.add(procedure);
+            getNext();
+        }
         return prog.GetProgram();
+
     }
 
     private ArrayList<Statement> statementList(ProcedureBuilder ctx) throws Exception {
         ArrayList<Statement> arr = new ArrayList<>();
         while (
             (currentToken != TOKEN.TOK_ELSE) && (currentToken != TOKEN.TOK_ENDIF) &&
-                (currentToken != TOKEN.TOK_WEND) && (currentToken != TOKEN.TOK_NULL)
+                (currentToken != TOKEN.TOK_WEND) && (currentToken != TOKEN.TOK_END)
         ) {
 
             Statement temp = Statement(ctx);
@@ -415,6 +443,7 @@ public class RDParser extends Lexer {
             }
 
             default -> {
+                System.out.println(currentToken);
                 throw new Exception("Invalid Statement");
             }
         }

@@ -66,7 +66,7 @@ public class ProcedureBuilder extends AbstractBuilder {
         return ctx.getSymbolTable();
     }
 
-    public Procedure GetProcedure() {
+    public Procedure getProcedure() {
         return new Procedure(procedureName, formalsParameters,
             m_statements, ctx.getSymbolTable(), typeInfo);
     }

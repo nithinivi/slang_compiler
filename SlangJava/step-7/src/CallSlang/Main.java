@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         byte[] b;
         try (InputStream stream = new FileInputStream(
-            "/home/nithihn/learn/slang_compiler/SlangJava/step-5/src/CallSlang/scripts/conditionals.sl")) {
+            "/home/nithihn/learn/slang_compiler/SlangJava/step-7/src/CallSlang/scripts/functions.sl")) {
             b = new byte[stream.available()];
             int read = stream.read(b);
         }
@@ -28,7 +28,7 @@ public class Main {
         TModule module = pars.doParse();
         RUNTIEM_CONTEXT rtx = new RUNTIEM_CONTEXT(module);
 
-        module.Execute(rtx);
+        module.Execute(rtx, null);
 
     }
 }
