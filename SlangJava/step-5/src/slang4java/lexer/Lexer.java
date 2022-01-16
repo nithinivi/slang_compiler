@@ -193,9 +193,10 @@ public class Lexer {
 
                     } else if (Character.isLetter(expression.charAt(index))) {
                         String tempString = "";
-                        while (index < length &&
+
+                        while (index < length && (
                             Character.isLetterOrDigit(expression.charAt(index)) ||
-                            expression.charAt(index) == '_') {
+                                expression.charAt(index) == '_')) {
 
                             tempString += String.valueOf(expression.charAt(index));
                             index++;
@@ -204,9 +205,9 @@ public class Lexer {
                         tempString = tempString.toUpperCase();
 
                         for (ValueTable keyword : keywords) {
-                            if (keyword.Value.compareTo(tempString) == 0) {
+                            if (keyword.Value.compareTo(tempString) == 0)
                                 return keyword.tok;
-                            }
+
                         }
 
                         this.string = tempString;

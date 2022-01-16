@@ -116,6 +116,7 @@ public class RDParser extends Lexer {
         if (currentToken == TOKEN.TOK_NUMERIC) {
             returnValue = new NumericConstant(getNumber());
             currentToken = getToken();
+
         } else if (currentToken == TOKEN.TOK_STRING) {
             returnValue = new StringLiteral(getString());
             currentToken = getToken();
@@ -123,12 +124,14 @@ public class RDParser extends Lexer {
         } else if (currentToken == TOKEN.TOK_BOOL_FALSE || currentToken == TOKEN.TOK_BOOL_TRUE) {
             returnValue = new BooleanConstant(currentToken == TOKEN.TOK_BOOL_TRUE ? true : false);
             currentToken = getToken();
+
         } else if (currentToken == TOKEN.TOK_OPREN) {
             currentToken = getToken();
-            returnValue = Expression(ctx);
-            if (currentToken != TOKEN.TOK_CPREN) {
+
+            returnValue = BinaryExpression(ctx);
+            if (currentToken != TOKEN.TOK_CPREN)
                 throw syntaxError("Missing Closing Parens");
-            }
+
             currentToken = getToken();
 
         } else if (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
@@ -137,17 +140,16 @@ public class RDParser extends Lexer {
             currentToken = getToken();
             returnValue = Factor(ctx);
 
-            if (l_token == TOKEN.TOK_PLUS) {
+            if (l_token == TOKEN.TOK_PLUS)
                 returnValue = new UnaryPlus(returnValue);
-            } else {
+            else
                 returnValue = new UnaryMinus(returnValue);
-            }
-
 
         } else if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
             String str = getString();
             SymbolInfo info = ctx.getSymbolTable().getSymbol(str);
-            if (info == null) throw new Exception("unidentifed symbol");
+            if (info == null)
+                throw new Exception("unidentifed symbol");
             getNext();
             returnValue = new Variable(info);
 
@@ -325,7 +327,7 @@ public class RDParser extends Lexer {
 
         a.TypeCheck(ctx.getContext());
         if (currentToken != TOKEN.TOK_SEMI)
-            throw new Exception("expected ; ");
+            throw syntaxError("expected ; ");
 
         return new PrintLineStatement(a);
     }

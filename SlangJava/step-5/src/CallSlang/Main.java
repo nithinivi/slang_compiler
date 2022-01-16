@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         byte[] b;
         try (InputStream stream = new FileInputStream(
-                "/home/nithihn/learn/slang_compiler/SlangJava/part04/src/CallSlang/first.sl")) {
+            "/home/nithihn/learn/slang_compiler/SlangJava/step-5/src/CallSlang/scripts/conditionals.sl")) {
             b = new byte[stream.available()];
             int read = stream.read(b);
         }

@@ -22,15 +22,14 @@ public class WhileStatement extends Statement {
     public SymbolInfo Execute(RUNTIEM_CONTEXT cont) throws Exception {
         while (true) {
             SymbolInfo evaluated_condition = condition.Evaluate(cont);
-            if (evaluated_condition == null || evaluated_condition.Type == TypeInfo.TYPE_BOOL)
+            if (evaluated_condition == null || evaluated_condition.Type != TypeInfo.TYPE_BOOL)
                 return null;
 
             if (!evaluated_condition.BoolValue)
                 return null;
 
-            for (Object s : statementsList) {
-                Statement statement = (Statement) s;
-                SymbolInfo tsp = statement.Execute(cont);
+            for (Statement s : statementsList) {
+                SymbolInfo tsp = s.Execute(cont);
                 if (tsp != null)
                     return tsp;
             }
