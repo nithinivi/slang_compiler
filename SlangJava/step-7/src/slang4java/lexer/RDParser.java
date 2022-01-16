@@ -1,8 +1,33 @@
 /*
- * <Expr> ::= <Term> | Term { + | - } <Expr>
- * <Term> ::= <Factor> | <Factor> { * | / } <Term>
- * <Factor>::= <number> | ( <expr> ) | { + | - } <factor>
- * */
+* <Module> ::= {<Procedure>}+;
+* <Procedure>::= FUNCTION <type> func_name ‘(‘ arglist ‘)’
+* <stmts>
+* END
+* <type> := NUMERIC | STRING | BOOLEAN
+* arglist ::= '(' {} ')' | '(' <type> arg_name [, arglist ] ')'
+* <stmts> := { stmt }+
+* {stmt} := <vardeclstmt> | <printstmt>|<printlnstmt>
+* <assignmentstmt>|<callstmt>|<ifstmt>|
+* <whilestmt> | <returnstmt>
+* <vardeclstmt> ::= <type> var_name;
+* <printstmt> := PRINT <expr>;
+* <assignmentstmt>:= <variable> = value;
+* <ifstmt>::= IF <expr> THEN <stmts> [ ELSE <stmts> ] ENDIF
+* <whilestmt>::= WHILE <expr> <stmts> WEND
+* <returnstmt>:= Return <expr>
+* <expr> ::= <BExpr>
+* <BExpr> ::= <LExpr> LOGIC_OP <BExpr>
+* <LExpr> ::= <RExpr> REL_OP <LExpr>
+* <RExpr> ::= <Term> ADD_OP <RExpr>
+* <Term>::= <Factor> MUL_OP <Term>
+* <Factor> ::= <Numeric> | <String> | TRUE | FALSE | <variable> | ‘(‘ <expr> ‘)’ | {+|-|!}
+* <Factor> | <callexpr>
+* <callexpr> ::= funcname ‘(‘ actuals ‘)’
+* <LOGIC_OP> := '&&' | ‘||’
+* <REL_OP> := '>' |' < '|' >=' |' <=' |' <>' |' =='
+* <MUL_OP> := '*' |' /'
+* <ADD_OP> := '+' |' -'
+* */
 
 package slang4java.lexer;
 
@@ -31,6 +56,144 @@ public class RDParser extends Lexer {
         super(iExpr);
         prog = new TModuleBuilder();
 
+    }
+
+
+    private AbstractExpression ParseCallProcedure(ProcedureBuilder pb, Procedure p) throws Exception {
+
+        getNext();
+        if (currentToken != TOKEN.TOK_OPREN)
+            throw syntaxError("Opening Parenthesis Expected");
+        getNext();
+        ArrayList<AbstractExpression> actualParams = new ArrayList<>();
+
+        // evalute the expression
+        // parse the params and populated
+        while (true) {
+            AbstractExpression expression = BinaryExpression(pb);
+            // do type check
+            expression.TypeCheck(pb.getContext());
+            if (currentToken == TOKEN.TOK_COMMA) {
+                actualParams.add(expression);
+                getNext();
+                continue;
+            }
+            if (currentToken != TOKEN.TOK_CPREN)
+                throw syntaxError("Expected Closing parens");
+            else {
+                // add the last params
+                actualParams.add(expression);
+                break;
+            }
+        }
+        if (p != null)
+            return new CallExpression(p, actualParams);
+        else
+            return new CallExpression(pb.getProcedureName(),
+                true, // recursive 🤭
+                actualParams);
+    }
+
+    // parse single function
+    public ProcedureBuilder ParseFunction() throws Exception {
+        ProcedureBuilder procedureBuilder = new ProcedureBuilder("", new COMPILATION_CONTEXT());
+        if (currentToken != TOKEN.TOK_FUNCTION)
+            return null;
+
+        getNext();
+        // return type of the procedure ought to be
+        // boolean , numeric or string
+        if (!(
+            currentToken == TOKEN.TOK_VAR_BOOL ||
+                currentToken == TOKEN.TOK_VAR_NUMBER ||
+                currentToken == TOKEN.TOK_VAR_STRING
+        ))
+            return null;
+
+        // Assign return type
+        TypeInfo returnType = (currentToken == TOKEN.TOK_VAR_BOOL) ? TypeInfo.TYPE_BOOL :
+            (currentToken == TOKEN.TOK_VAR_NUMBER) ? TypeInfo.TYPE_NUMERIC : TypeInfo.TYPE_STRING;
+
+        procedureBuilder.setTypeInfo(returnType);
+
+        //parse the name of the  function
+        getNext();
+        if (currentToken != TOKEN.TOK_UNQUOTED_STRING)
+            return null;
+
+        // set the name of the function
+        procedureBuilder.setProcedureName(getString());
+
+        // opening parenthesis for the
+        // start the param-list
+        getNext();
+        if (currentToken != TOKEN.TOK_OPREN)
+            return null;
+
+
+        //Parse the formal parameters
+        parseFormalParameters(procedureBuilder);
+        if (currentToken != TOKEN.TOK_CPREN)
+            return null;
+
+        getNext();
+        // parse the function code
+        ArrayList<Statement> list = statementList(procedureBuilder);
+        if (currentToken != TOKEN.TOK_END)
+            throw syntaxError("END Keyword expected");
+
+
+        // accumulate all statement to
+        // procedure builder
+        for (Statement s : list)
+            procedureBuilder.addStatement(s);
+
+
+        return procedureBuilder;
+
+    }
+
+    private void parseFormalParameters(ProcedureBuilder procedureBuilder) throws Exception {
+        if (currentToken != TOKEN.TOK_OPREN)
+            throw syntaxError("Expected openning parenthesis");
+        getNext();
+
+        ArrayList<TypeInfo> lst_types = new ArrayList<>();
+
+        while (currentToken == TOKEN.TOK_VAR_BOOL ||
+            currentToken == TOKEN.TOK_VAR_NUMBER ||
+            currentToken == TOKEN.TOK_VAR_STRING
+        ) {
+
+            SymbolInfo info = new SymbolInfo();
+            // set the variable type
+            info.Type = (currentToken == TOKEN.TOK_VAR_BOOL) ? TypeInfo.TYPE_BOOL :
+                (currentToken == TOKEN.TOK_VAR_NUMBER) ? TypeInfo.TYPE_NUMERIC : TypeInfo.TYPE_STRING;
+
+            getNext();
+            //get the variable name
+            if (currentToken != TOKEN.TOK_UNQUOTED_STRING)
+                throw syntaxError("Variable name expected");
+
+            info.SymbolName = getString();
+            lst_types.add(info.Type);
+            procedureBuilder.addFormals(info);
+            procedureBuilder.addLocal(info);
+
+            getNext();
+
+            if (currentToken != TOKEN.TOK_COMMA)
+                break;
+
+            // register the funciton prototype in the prots of the
+            // the moduleBuilder
+            prog.AddFunctionProtoType(procedureBuilder.getProcedureName(),
+                procedureBuilder.getTypeInfo(),
+                lst_types);
+            return;
+
+
+        }
     }
 
 
@@ -147,11 +310,19 @@ public class RDParser extends Lexer {
 
         } else if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
             String str = getString();
-            SymbolInfo info = ctx.getSymbolTable().getSymbol(str);
-            if (info == null)
-                throw new Exception("unidentifed symbol");
+            if (!prog.isFunction(str)) {
+                // if not function its ought to variable
+                SymbolInfo info = ctx.getSymbolTable().getSymbol(str);
+                if (info == null)
+                    throw new Exception("unidentifed symbol");
+                getNext();
+                returnValue = new Variable(info);
+            }
+            // if p is null is recrusive function
+            Procedure p = prog.getProc(str);
+            AbstractExpression ptr = ParseCallProcedure(ctx, p);
             getNext();
-            returnValue = new Variable(info);
+            return ptr;
 
         } else {
             System.out.println("Illegal Token");
@@ -160,6 +331,7 @@ public class RDParser extends Lexer {
 
         return returnValue;
     }
+
 
     public ArrayList<Statement> Parse(ProcedureBuilder ctx) throws Exception {
         getNext();
@@ -235,6 +407,11 @@ public class RDParser extends Lexer {
                 getNext();
                 return returnValue;
 
+            }
+            case TOK_RETURN -> {
+                returnValue = parseReturnStatement(ctx);
+                getNext();
+                return returnValue;
             }
 
             default -> {
@@ -379,6 +556,17 @@ public class RDParser extends Lexer {
         return new WhileStatement(condition, statements);
 
     }
+
+    private Statement parseReturnStatement(ProcedureBuilder pb) throws Exception {
+        getNext();
+        AbstractExpression expression = BinaryExpression(pb);
+        if (currentToken != TOKEN.TOK_SEMI)
+            throw syntaxError("expected ;");
+
+        pb.typeCheck(expression);
+        return new ReturnStatement(expression);
+    }
+
 
     protected TOKEN getNext() {
         lastToken = currentToken;

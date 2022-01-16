@@ -13,14 +13,14 @@ public class TModule {
         this.procedures = procedures;
     }
 
-    public SymbolInfo Execute(RUNTIEM_CONTEXT cont) throws Exception {
+    public SymbolInfo Execute(RUNTIEM_CONTEXT cont, ArrayList actuals) throws Exception {
         Procedure p = Find("Main");
         if (p != null)
-            return p.Execute(cont);
+            return p.Execute(cont, actuals);
         return null;
     }
 
-    private Procedure Find(String str) {
+    public Procedure Find(String str) {
         for (Procedure p : procedures) {
             String procedure_name = p.m_name;
             if (procedure_name.toUpperCase().compareTo(str.toUpperCase()) == 0)

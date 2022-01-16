@@ -20,7 +20,6 @@ public enum TOKEN {
     TOK_VAR_STRING,
     TOK_VAR_BOOL,
     TOK_NUMERIC,
-    TOK_COMMENT,
     TOK_BOOL_TRUE,
     TOK_BOOL_FALSE,
     TOK_STRING,
@@ -41,7 +40,12 @@ public enum TOKEN {
     TOK_ELSE,  // Else
     TOK_ENDIF, // Endif
     TOK_WHILE, // While
-    TOK_WEND   // Wend
+    TOK_WEND,   // Wend
+
+    TOK_COMMA,
+    TOK_FUNCTION,
+    TOK_END,
+    TOK_RETURN;
 
 
 }

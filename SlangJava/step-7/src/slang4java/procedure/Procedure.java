@@ -1,5 +1,7 @@
 package slang4java.procedure;
 
+import lombok.Getter;
+import slang4java.context.COMPILATION_CONTEXT;
 import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.SymbolTable;
@@ -30,10 +32,45 @@ public class Procedure extends AbstractProcedure {
         this._type = type;
     }
 
+    public String getM_name() {
+        return m_name;
+    }
+
+    public ArrayList getM_formals() {
+        return m_formals;
+    }
+
+    public TypeInfo GetType() {
+        return _type;
+    }
+
+    public SymbolInfo ReturnValue() {
+        return return_value;
+    }
+
+    public TypeInfo TypeCheck(COMPILATION_CONTEXT cont) {
+        return TypeInfo.TYPE_NUMERIC;
+    }
+
     @Override
-    public SymbolInfo Execute(RUNTIEM_CONTEXT cont) throws Exception {
-        for (Statement statement : m_statements)
-            statement.Execute(cont);
+    public SymbolInfo Execute(RUNTIEM_CONTEXT cont, ArrayList actuals) throws Exception {
+        ArrayList variables = new ArrayList();
+        int i = 0;
+        if (m_formals != null && actuals != null) {
+            for (SymbolInfo formal : m_formals) {
+                SymbolInfo info = (SymbolInfo) actuals.get(i);
+                info.SymbolName = formal.SymbolName;
+                cont.getSymbolTable().Add(info);
+                i++;
+            }
+        }
+        for (Statement statement : m_statements) {
+            return_value = statement.Execute(cont);
+            if (return_value != null) {
+                return return_value;
+            }
+
+        }
 
         return null;
     }

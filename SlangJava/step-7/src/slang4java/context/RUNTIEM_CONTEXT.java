@@ -2,22 +2,25 @@ package slang4java.context;
 
 import lombok.Getter;
 import lombok.Setter;
+import slang4java.complationUnits.TModule;
 import slang4java.metainfo.SymbolTable;
 
 public class RUNTIEM_CONTEXT {
 
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
 
-    public void setSymbolTable(SymbolTable symbolTable) {
-        this.symbolTable = symbolTable;
-    }
-
+    @Getter
+    @Setter
     private SymbolTable symbolTable;
 
-    public RUNTIEM_CONTEXT() {
+    private TModule _prog = null;
+
+    public RUNTIEM_CONTEXT(TModule module) {
         symbolTable = new SymbolTable();
+        _prog = module;
+    }
+
+    public TModule getProgram(){
+        return _prog;
     }
 
 

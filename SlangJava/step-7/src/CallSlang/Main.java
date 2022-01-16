@@ -20,9 +20,13 @@ public class Main {
 
         RDParser pars = null;
         pars = new RDParser(program);
+        if (pars == null) {
+            System.out.println("Parse process failed");
+            return;
+        }
 
         TModule module = pars.doParse();
-        RUNTIEM_CONTEXT rtx = new RUNTIEM_CONTEXT();
+        RUNTIEM_CONTEXT rtx = new RUNTIEM_CONTEXT(module);
 
         module.Execute(rtx);
 
