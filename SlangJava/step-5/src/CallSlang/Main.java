@@ -17,11 +17,13 @@ public class Main {
             int read = stream.read(b);
         }
         String program = new String(b);
-        RDParser pars = null;
 
+        RDParser pars = null;
         pars = new RDParser(program);
+
         TModule module = pars.doParse();
         RUNTIEM_CONTEXT rtx = new RUNTIEM_CONTEXT();
+
         module.Execute(rtx);
 
     }

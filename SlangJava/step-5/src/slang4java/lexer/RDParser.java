@@ -33,20 +33,50 @@ public class RDParser extends Lexer {
 
     }
 
-    public Expression callExpr(ProcedureBuilder ctx) {
-        currentToken = getToken();
-        return Expr(ctx);
 
+    public AbstractExpression BinaryExpression(ProcedureBuilder pb) {
+
+        TOKEN l_token;
+        AbstractExpression ret_value = LexicalExpression(pb);
+        while (currentToken == TOKEN.TOK_AND || currentToken == TOKEN.TOK_OR) {
+            l_token = currentToken;
+            currentToken = getToken();
+            AbstractExpression expression2 = LexicalExpression(pb);
+            ret_value = new LogicalExpression(ret_value, expression2, l_token);
+        }
+        return ret_value;
     }
 
-    private Expression Expr(ProcedureBuilder ctx) {
+
+    private AbstractExpression LexicalExpression(ProcedureBuilder pb) {
         TOKEN l_token;
-        Expression returnValue = Term(ctx);
+        AbstractExpression ret_value = Expression(pb);
+        while (
+            currentToken == TOKEN.TOK_GT ||
+                currentToken == TOKEN.TOK_GTE ||
+                currentToken == TOKEN.TOK_LT ||
+                currentToken == TOKEN.TOK_LTE ||
+                currentToken == TOKEN.TOK_EQ ||
+                currentToken == TOKEN.TOK_NEQ
+        ) {
+            l_token = currentToken;
+            currentToken = getToken();
+            AbstractExpression expression2 = Expression(pb);
+            RelationalOperator operator = getRelationalOperator(l_token);
+            ret_value = new RelationalExpression(ret_value, expression2, operator);
+        }
+        return ret_value;
+    }
+
+
+    private AbstractExpression Expression(ProcedureBuilder ctx) {
+        TOKEN l_token;
+        AbstractExpression returnValue = Term(ctx);
 
         while (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
             l_token = currentToken;
             currentToken = getToken();
-            Expression e1 = Term(ctx);
+            AbstractExpression e1 = Term(ctx);
             if (l_token == TOKEN.TOK_PLUS) {
                 returnValue = new BinaryPlus(returnValue, e1);
             } else {
@@ -56,9 +86,9 @@ public class RDParser extends Lexer {
         return returnValue;
     }
 
-    private Expression Term(ProcedureBuilder ctx) {
+    private AbstractExpression Term(ProcedureBuilder ctx) {
         TOKEN l_token;
-        Expression returnValue = null;
+        AbstractExpression returnValue = null;
         try {
             returnValue = Factor(ctx);
         } catch (Exception e) {
@@ -67,7 +97,7 @@ public class RDParser extends Lexer {
         while (currentToken == TOKEN.TOK_MUL || currentToken == TOKEN.TOK_DIV) {
             l_token = currentToken;
             currentToken = getToken();
-            Expression e1 = Term(ctx);
+            AbstractExpression e1 = Term(ctx);
             if (l_token == TOKEN.TOK_MUL) {
                 returnValue = new Mul(returnValue, e1);
             } else {
@@ -79,9 +109,9 @@ public class RDParser extends Lexer {
 
     }
 
-    private Expression Factor(ProcedureBuilder ctx) throws Exception {
+    private AbstractExpression Factor(ProcedureBuilder ctx) throws Exception {
         TOKEN l_token;
-        Expression returnValue = null;
+        AbstractExpression returnValue = null;
 
         if (currentToken == TOKEN.TOK_NUMERIC) {
             returnValue = new NumericConstant(getNumber());
@@ -91,16 +121,13 @@ public class RDParser extends Lexer {
             currentToken = getToken();
 
         } else if (currentToken == TOKEN.TOK_BOOL_FALSE || currentToken == TOKEN.TOK_BOOL_TRUE) {
-            returnValue = new BooleanConstant(
-                currentToken == TOKEN.TOK_BOOL_TRUE ? true : false
-            );
+            returnValue = new BooleanConstant(currentToken == TOKEN.TOK_BOOL_TRUE ? true : false);
             currentToken = getToken();
         } else if (currentToken == TOKEN.TOK_OPREN) {
             currentToken = getToken();
-            returnValue = Expr(ctx);
+            returnValue = Expression(ctx);
             if (currentToken != TOKEN.TOK_CPREN) {
-                System.out.println("Missing Closing Parens");
-                throw new Exception("Missing parens");
+                throw syntaxError("Missing Closing Parens");
             }
             currentToken = getToken();
 
@@ -120,8 +147,7 @@ public class RDParser extends Lexer {
         } else if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
             String str = getString();
             SymbolInfo info = ctx.getSymbolTable().getSymbol(str);
-            if (info == null)
-                throw new Exception("unidentifed symbol");
+            if (info == null) throw new Exception("unidentifed symbol");
             getNext();
             returnValue = new Variable(info);
 
@@ -133,27 +159,29 @@ public class RDParser extends Lexer {
         return returnValue;
     }
 
-    public ArrayList Parse(ProcedureBuilder ctx) throws Exception {
+    public ArrayList<Statement> Parse(ProcedureBuilder ctx) throws Exception {
         getNext();
         return statementList(ctx);
     }
 
     public TModule doParse() throws Exception {
-        ProcedureBuilder procedureBuilder = new ProcedureBuilder("MAIN",
-            new COMPILATION_CONTEXT());
-        ArrayList statements = Parse(procedureBuilder);
-        for (Object s : statements) {
-            Statement statement = (Statement) s;
-            procedureBuilder.addStatement(statement);
+        ProcedureBuilder procedureBuilder = new ProcedureBuilder("MAIN", new COMPILATION_CONTEXT());
+        ArrayList<Statement> statements = Parse(procedureBuilder);
+        for (Statement s : statements) {
+            procedureBuilder.addStatement(s);
         }
         Procedure procedure = procedureBuilder.GetProcedure();
         prog.add(procedure);
         return prog.GetProgram();
     }
 
-    private ArrayList statementList(ProcedureBuilder ctx) throws Exception {
-        ArrayList arr = new ArrayList();
-        while (currentToken != TOKEN.TOK_NULL) {
+    private ArrayList<Statement> statementList(ProcedureBuilder ctx) throws Exception {
+        ArrayList<Statement> arr = new ArrayList<>();
+        while (
+            (currentToken != TOKEN.TOK_ELSE) && (currentToken != TOKEN.TOK_ENDIF) &&
+                (currentToken != TOKEN.TOK_WEND) && (currentToken != TOKEN.TOK_NULL)
+        ) {
+
             Statement temp = Statement(ctx);
             if (temp != null) {
                 arr.add(temp);
@@ -166,14 +194,14 @@ public class RDParser extends Lexer {
         Statement returnValue = null;
         switch (currentToken) {
             case TOK_VAR_BOOL, TOK_VAR_NUMBER, TOK_VAR_STRING -> {
-                returnValue = ParseVariableDeclStatement(ctx);
+                returnValue = parseVariableDeclStatement(ctx);
                 getNext();
                 return returnValue;
             }
 
             case TOK_PRINT -> {
                 try {
-                    returnValue = ParsePrintStatement(ctx);
+                    returnValue = parsePrintStatement(ctx);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -181,7 +209,7 @@ public class RDParser extends Lexer {
             }
             case TOK_PRINTLN -> {
                 try {
-                    returnValue = ParsePrintLnStatement(ctx);
+                    returnValue = parsePrintLnStatement(ctx);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -189,9 +217,22 @@ public class RDParser extends Lexer {
             }
 
             case TOK_UNQUOTED_STRING -> {
-                returnValue = ParseAssignmentStatement(ctx);
+                returnValue = parseAssignmentStatement(ctx);
                 getNext();
                 return returnValue;
+            }
+
+            case TOK_IF -> {
+                returnValue = parseIfStatement(ctx);
+                getNext();
+                return returnValue;
+            }
+
+            case TOK_WHILE -> {
+                returnValue = parseWhileStatement(ctx);
+                getNext();
+                return returnValue;
+
             }
 
             default -> {
@@ -202,15 +243,15 @@ public class RDParser extends Lexer {
     }
 
 
-    private Statement ParseVariableDeclStatement(ProcedureBuilder ctx) throws Exception {
+    private Statement parseVariableDeclStatement(ProcedureBuilder ctx) throws Exception {
         TOKEN tok = currentToken;
         getNext();
         if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
             SymbolInfo symb = new SymbolInfo();
             symb.SymbolName = getString();
-            symb.Type = (tok == TOKEN.TOK_VAR_BOOL)
-                ? TypeInfo.TYPE_BOOL : (tok == TOKEN.TOK_VAR_NUMBER)
-                ? TypeInfo.TYPE_NUMERIC : TypeInfo.TYPE_STRING;
+            symb.Type = (tok == TOKEN.TOK_VAR_BOOL) ?
+                TypeInfo.TYPE_BOOL : (tok == TOKEN.TOK_VAR_NUMBER) ?
+                TypeInfo.TYPE_NUMERIC : TypeInfo.TYPE_STRING;
 
             getNext();
             if (currentToken == TOKEN.TOK_SEMI) {
@@ -229,7 +270,7 @@ public class RDParser extends Lexer {
         }
     }
 
-    private Statement ParseAssignmentStatement(ProcedureBuilder ctx) throws Exception {
+    private Statement parseAssignmentStatement(ProcedureBuilder ctx) throws Exception {
         // Retrive the variable and look if up
         // the symbol table. if not found throw Exception
 
@@ -246,13 +287,12 @@ public class RDParser extends Lexer {
         // token should be assignment
         getNext();
         if (currentToken != TOKEN.TOK_ASSIGN) {
-            String errorMessage = "Slang Compile Time Error - Missing '=' at line: "
-                + getCurrentLine(getIndex());
+            String errorMessage = "Slang Compile Time Error - Missing '=' at line: " + getCurrentLine(getIndex());
             throw new Exception(errorMessage);
         }
 
         getNext();
-        Expression expression = Expr(ctx);
+        AbstractExpression expression = Expression(ctx);
 
         //type check
         if (expression.TypeCheck(ctx.getContext()) != symbol.Type) {
@@ -269,32 +309,112 @@ public class RDParser extends Lexer {
     }
 
 
-    private Statement ParsePrintLnStatement(ProcedureBuilder ctx) throws Exception {
+    private Statement parsePrintLnStatement(ProcedureBuilder ctx) throws Exception {
         getNext();
-        Expression a = Expr(ctx);
-        if (currentToken != TOKEN.TOK_SEMI) {
+        AbstractExpression a = Expression(ctx);
+        if (currentToken != TOKEN.TOK_SEMI)
             throw new Exception("expected ; ");
-        }
+
         return new PrintStatement(a);
     }
 
 
-    private Statement ParsePrintStatement(ProcedureBuilder ctx) throws Exception {
+    private Statement parsePrintStatement(ProcedureBuilder ctx) throws Exception {
         getNext();
-        Expression a = Expr(ctx);
+        AbstractExpression a = Expression(ctx);
 
         a.TypeCheck(ctx.getContext());
-        if (currentToken != TOKEN.TOK_SEMI) {
-
+        if (currentToken != TOKEN.TOK_SEMI)
             throw new Exception("expected ; ");
-        }
+
         return new PrintLineStatement(a);
+    }
+
+
+    private Statement parseIfStatement(ProcedureBuilder pb) throws Exception {
+        getNext();
+        ArrayList<Statement> trueStatements = null;
+        ArrayList<Statement> falseStatements = null;
+        AbstractExpression condition = BinaryExpression(pb);
+
+        if (pb.typeCheck(condition) != TypeInfo.TYPE_BOOL)
+            throw new Exception("expects boolen expression");
+
+
+        if (currentToken != TOKEN.TOK_THEN)
+            throw syntaxError("then expected");
+
+        getNext();
+        trueStatements = statementList(pb);
+
+        if (currentToken == TOKEN.TOK_ENDIF)
+            return new IfStatement(condition, trueStatements, falseStatements);
+
+        if (currentToken != TOKEN.TOK_ELSE)
+            throw syntaxError("else expected");
+
+        getNext();
+        falseStatements = statementList(pb);
+
+        if (currentToken != TOKEN.TOK_ENDIF)
+            throw syntaxError("END IF expected");
+
+        return new IfStatement(condition, trueStatements, falseStatements);
+
+    }
+
+    private Statement parseWhileStatement(ProcedureBuilder pb) throws Exception {
+        getNext();
+        AbstractExpression condition = BinaryExpression(pb);
+
+        if (pb.typeCheck(condition) != TypeInfo.TYPE_BOOL)
+            throw new Exception("expects boolen expression");
+
+        ArrayList<Statement> statements = statementList(pb);
+        if (currentToken != TOKEN.TOK_WEND)
+            throw syntaxError("expected wend");
+
+        return new WhileStatement(condition, statements);
+
     }
 
     protected TOKEN getNext() {
         lastToken = currentToken;
         currentToken = getToken();
         return currentToken;
+    }
+
+
+    //convert lexical operator to relational operator
+    private RelationalOperator getRelationalOperator(TOKEN operatorToken) {
+        switch (operatorToken) {
+            case TOK_LT:
+                return RelationalOperator.TOK_LT;
+            case TOK_LTE:
+                return RelationalOperator.TOK_LTE;
+            case TOK_GT:
+                return RelationalOperator.TOK_GT;
+            case TOK_GTE:
+                return RelationalOperator.TOK_GTE;
+            case TOK_NEQ:
+                return RelationalOperator.TOK_NEQ;
+            case TOK_EQ:
+                return RelationalOperator.TOK_EQ;
+            default:
+                break;
+        }
+
+        return null;
+    }
+
+    private Exception syntaxError(String errorMsg) throws Exception {
+        int index = getIndex();
+        if (lastToken == TOKEN.TOK_STRING) {
+            index -= getString().length();
+        }
+        String errorMessage = "Slang Compile Time Error - SYNTAX ERROR AT: "
+            + getCurrentLine(index) + "\n" + errorMsg;
+        return new Exception(errorMessage);
     }
 
 

@@ -5,7 +5,7 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class StringLiteral extends Expression {
+public class StringLiteral extends AbstractExpression {
     private SymbolInfo info;
 
     public StringLiteral(String value) {

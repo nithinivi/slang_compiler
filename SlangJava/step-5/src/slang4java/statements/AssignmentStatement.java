@@ -1,15 +1,15 @@
 package slang4java.statements;
 
 import slang4java.context.RUNTIEM_CONTEXT;
-import slang4java.expressions.Expression;
+import slang4java.expressions.AbstractExpression;
 import slang4java.expressions.Variable;
 import slang4java.metainfo.SymbolInfo;
 
 public class AssignmentStatement extends Statement {
     private Variable variable;
-    private Expression expression;
+    private AbstractExpression expression;
 
-    public AssignmentStatement(SymbolInfo variable, Expression expression) {
+    public AssignmentStatement(SymbolInfo variable, AbstractExpression expression) {
         this.variable = new Variable(variable);
         this.expression = expression;
     }

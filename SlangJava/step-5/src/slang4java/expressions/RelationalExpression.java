@@ -6,15 +6,15 @@ import slang4java.lexer.RelationalOperator;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class RelationalExpression extends Expression {
+public class RelationalExpression extends AbstractExpression {
 
     RelationalOperator operator;
-    private Expression lExpression, rExpression;
+    private AbstractExpression lExpression, rExpression;
     TypeInfo _type;
     TypeInfo _opType;    //Operand type
 
 
-    public RelationalExpression(Expression a, Expression b, RelationalOperator o) {
+    public RelationalExpression(AbstractExpression a, AbstractExpression b, RelationalOperator o) {
         this.lExpression = a;
         this.rExpression = b;
         this.operator = o;

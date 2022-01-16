@@ -5,7 +5,7 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class BooleanConstant extends Expression {
+public class BooleanConstant extends AbstractExpression {
     private SymbolInfo info;
 
 

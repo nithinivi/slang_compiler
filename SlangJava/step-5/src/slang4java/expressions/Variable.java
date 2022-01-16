@@ -6,7 +6,7 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class Variable extends Expression {
+public class Variable extends AbstractExpression {
 
     @Setter
     private String var_name;

@@ -5,11 +5,11 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class UnaryMinus extends Expression {
-    private Expression expression;
+public class UnaryMinus extends AbstractExpression {
+    private AbstractExpression expression;
     private TypeInfo _type;
 
-    public UnaryMinus(Expression expression) {
+    public UnaryMinus(AbstractExpression expression) {
         this.expression = expression;
     }
 

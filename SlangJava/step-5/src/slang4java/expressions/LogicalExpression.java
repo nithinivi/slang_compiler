@@ -6,14 +6,14 @@ import slang4java.lexer.TOKEN;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class LogicalExpression extends Expression {
+public class LogicalExpression extends AbstractExpression {
 
-    private Expression lExpression, rExpression;
+    private AbstractExpression lExpression, rExpression;
     private TOKEN operator;
 
     TypeInfo _type;
 
-    public LogicalExpression(Expression a, Expression b, TOKEN o) {
+    public LogicalExpression(AbstractExpression a, AbstractExpression b, TOKEN o) {
         this.lExpression = a;
         this.rExpression = b;
         this.operator = o;

@@ -5,7 +5,7 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class NumericConstant extends Expression {
+public class NumericConstant extends AbstractExpression {
     private double _value;
     private SymbolInfo info;
 

@@ -5,13 +5,13 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class Mul extends Expression {
+public class Mul extends AbstractExpression {
 
 
-    private Expression leftExpr, rightExpr;
+    private AbstractExpression leftExpr, rightExpr;
     private TypeInfo _type;
 
-    public Mul(Expression leftExpr, Expression rightExpr) {
+    public Mul(AbstractExpression leftExpr, AbstractExpression rightExpr) {
         this.leftExpr = leftExpr;
         this.rightExpr = rightExpr;
     }

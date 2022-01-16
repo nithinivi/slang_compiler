@@ -1,7 +1,7 @@
 package slang4java.statements;
 
 import slang4java.context.RUNTIEM_CONTEXT;
-import slang4java.expressions.Expression;
+import slang4java.expressions.AbstractExpression;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
@@ -13,11 +13,11 @@ public class IfStatement extends Statement {
     // [ ELSE <statementlist> ] optional
     // ENDIF
 
-    private Expression condition;
+    private AbstractExpression condition;
     private ArrayList _ifStatementsList;
     private ArrayList _elseStatementsList;
 
-    public IfStatement(Expression cond, ArrayList ifList, ArrayList elseList) {
+    public IfStatement(AbstractExpression cond, ArrayList ifList, ArrayList elseList) {
         this.condition = cond;
         this._ifStatementsList = ifList;
         this._elseStatementsList = elseList;

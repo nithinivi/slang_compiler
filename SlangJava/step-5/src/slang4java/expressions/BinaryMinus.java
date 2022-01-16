@@ -5,12 +5,12 @@ import slang4java.context.RUNTIEM_CONTEXT;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
-public class BinaryMinus extends Expression {
+public class BinaryMinus extends AbstractExpression {
 
-    private Expression leftExpr, rightExpr;
+    private AbstractExpression leftExpr, rightExpr;
     private TypeInfo _type;
 
-    public BinaryMinus(Expression expression1, Expression expression2) {
+    public BinaryMinus(AbstractExpression expression1, AbstractExpression expression2) {
         this.leftExpr = expression1;
         this.rightExpr = expression2;
     }

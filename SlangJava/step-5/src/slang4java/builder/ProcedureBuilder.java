@@ -3,7 +3,7 @@ package slang4java.builder;
 import lombok.Getter;
 import lombok.Setter;
 import slang4java.context.COMPILATION_CONTEXT;
-import slang4java.expressions.Expression;
+import slang4java.expressions.AbstractExpression;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.SymbolTable;
 import slang4java.metainfo.TypeInfo;
@@ -46,7 +46,7 @@ public class ProcedureBuilder extends AbstractBuilder {
         m_statements.add(stmt);
     }
 
-    public TypeInfo typeCheck(Expression exp) throws Exception {
+    public TypeInfo typeCheck(AbstractExpression exp) throws Exception {
         return exp.TypeCheck(ctx);
     }
 

@@ -1,15 +1,15 @@
 package slang4java.statements;
 
 import slang4java.context.RUNTIEM_CONTEXT;
-import slang4java.expressions.Expression;
+import slang4java.expressions.AbstractExpression;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
 public class PrintStatement extends Statement {
 
-    private Expression _ex;
+    private AbstractExpression _ex;
 
-    public PrintStatement(Expression _ex) {
+    public PrintStatement(AbstractExpression _ex) {
         this._ex = _ex;
     }
 

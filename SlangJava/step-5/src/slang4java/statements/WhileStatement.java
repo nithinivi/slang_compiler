@@ -1,7 +1,7 @@
 package slang4java.statements;
 
 import slang4java.context.RUNTIEM_CONTEXT;
-import slang4java.expressions.Expression;
+import slang4java.expressions.AbstractExpression;
 import slang4java.metainfo.SymbolInfo;
 import slang4java.metainfo.TypeInfo;
 
@@ -9,10 +9,10 @@ import java.util.ArrayList;
 
 public class WhileStatement extends Statement {
 
-    private Expression condition;
-    private ArrayList statementsList;
+    private AbstractExpression condition;
+    private ArrayList<Statement> statementsList;
 
-    public WhileStatement(Expression cond, ArrayList statementsList) {
+    public WhileStatement(AbstractExpression cond, ArrayList<Statement> statementsList) {
         this.condition = cond;
         this.statementsList = statementsList;
     }
