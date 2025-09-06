@@ -1,7 +1,8 @@
 mod expression;
 mod context;
 mod operator;
+mod lexer;
 
 fn main() {
-    println!("Step 1");
+    println!("Step 2");
 }
