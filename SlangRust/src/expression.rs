@@ -6,7 +6,7 @@ pub trait Expression {
 }
 
 #[derive(Debug)]
-struct NumericContext {
+pub struct NumericContext {
     value: f32,
 }
 
@@ -22,7 +22,7 @@ impl Expression for NumericContext {
     }
 }
 
-struct UnaryExpression {
+pub struct UnaryExpression {
     exp1: Box<dyn Expression>,
     operator: Operator,
 }
@@ -43,7 +43,7 @@ impl Expression for UnaryExpression {
     }
 }
 
-struct BinaryExpression {
+pub struct BinaryExpression {
     l_exp: Box<dyn Expression>,
     r_expr: Box<dyn Expression>,
     operator: Operator,

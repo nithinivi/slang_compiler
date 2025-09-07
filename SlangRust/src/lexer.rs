@@ -1,28 +1,26 @@
-use std::ops::Index;
-
-#[derive(Debug)]
-enum TOKEN {
+#[derive(Debug, PartialEq, Eq, Clone,Copy)]
+pub enum TOKEN {
     ILLEGAL_TOKEN = -1,
-    TOK_PLUS = 1,
-    TOK_MUL,
-    TOK_DIV,
-    TOK_SUB,
-    TOK_OPREN,
-    TOK_CPREN,
+    ADD = 1,
+    MUL,
+    DIV,
+    SUB,
+    OPREN,
+    CPREN,
     TOK_DOUBLE,
     TOK_NULL,
 }
-
-struct Lexer<'a> {
+#[derive(Debug)]
+pub struct Lexer<'a> {
     source: &'a str,
-    index: usize,
+    pub index: usize,
     length: usize,
-    number: f32,
+    pub(crate) number: f32,
     char: Vec<char>,
 }
 
 impl<'a> Lexer<'a> {
-    fn new(source: &'a str) -> Lexer<'a> {
+    pub fn new(source: &'a str) -> Lexer<'a> {
         let len = source.len();
         let char = source.chars().collect();
         Self {
@@ -51,29 +49,30 @@ impl<'a> Lexer<'a> {
         match self.c() {
             '+' => {
                 self.index += 1;
-                tok = TOKEN::TOK_PLUS
+                tok = TOKEN::ADD
             }
             '*' => {
                 self.index += 1;
-                tok = TOKEN::TOK_MUL
+                tok = TOKEN::MUL
             }
             '/' => {
                 self.index += 1;
-                tok = TOKEN::TOK_DIV
+                tok = TOKEN::DIV
             }
             '-' => {
                 self.index += 1;
-                tok = TOKEN::TOK_SUB
+                tok = TOKEN::SUB
             }
             '(' => {
                 self.index += 1;
-                tok = TOKEN::TOK_OPREN
+                tok = TOKEN::OPREN
             }
             ')' => {
                 self.index += 1;
-                tok = TOKEN::TOK_CPREN
+                tok = TOKEN::CPREN
             }
             x if x.is_ascii_digit() => {
+                tok = TOKEN::TOK_DOUBLE;
                 let mut seen_dot = false;
                 let start = self.index;
 
@@ -101,11 +100,13 @@ impl<'a> Lexer<'a> {
 
 #[cfg(test)]
 mod tests {
+    use crate::lexer::TOKEN::TOK_DOUBLE;
     use super::*;
     #[test]
     fn test_next_token() {
         let mut lexer = Lexer::new("12.0");
-        lexer.next_token();
-        assert_eq!(lexer.number, 12.0)
+        let token = lexer.next_token();
+        assert_eq!(lexer.number, 12.0);
+        println!("{:?}", token);
     }
 }
