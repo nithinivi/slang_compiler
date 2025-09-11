@@ -4,24 +4,22 @@ use crate::lexer::{Lexer, TOKEN};
 use crate::operator::Operator;
 use std::fmt;
 
-trait ErrorForToken {
-    fn for_token(token: TOKEN) -> ParseError;
+#[derive(Debug)]
+pub struct ParseError{
+    token: TOKEN,
+    index: usize,
 }
 
-#[derive(Debug)]
-struct ParseError{
-    token: TOKEN,
-    line_no: usize,
-}
-impl ErrorForToken for ParseError {
-    fn for_token(token: TOKEN, line_no : usize) -> ParseError {
-        Self { token,  line_no }
+impl ParseError {
+    fn new(token: TOKEN, index : usize) -> ParseError {
+        Self { token,  index }
     }
 }
 
+
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-         write!(f, "Parsing at {} for {:?}", self.line_no, self.token)
+         write!(f, "Parsing at {} for {:?}", self.index, self.token)
     }
 }
 
@@ -58,8 +56,9 @@ impl<'a> RdParser<'a> {
     /// <expr>   ::= <term> { ("+" | "-") <term> }
     fn parse_expr(&mut self) -> Result<Box<dyn Expression>, ParseError> {
         let mut left = self.parse_term()?;
-        let mut operation_token = self.current_token;
-        while  ADD == operation_token|| SUB == operation_token {
+        while  ADD == self.current_token|| SUB == self.current_token {
+            let mut operation_token = self.current_token;
+            self.next_token();
             let right = self.parse_term()?;
             left = Box::new(BinaryExpression::new(
                 left,
@@ -78,8 +77,9 @@ impl<'a> RdParser<'a> {
     /// <term>   ::= <factor> { ("*" | "/") <factor> }
     fn parse_term(&mut self) -> Result<Box<dyn Expression>, ParseError> {
         let mut left = self.parse_factor()?;
-        let mut operation_token = self.current_token;
-        while  MUL == operation_token || DIV == operation_token {
+        while  MUL == self.current_token || DIV == self.current_token {
+            let mut operation_token = self.current_token;
+            self.next_token();
             let right: Box<dyn Expression> = self.parse_term()?;
             left = Box::new(BinaryExpression::new(
                 left,
@@ -107,14 +107,14 @@ impl<'a> RdParser<'a> {
                 self.next_token();
                 let node = self.parse_expr()?;
                 if self.current_token != TOKEN::CPREN {
-                    return Err(ParseError::for_token(self.current_token,self.lexer.number));
+                    return Err(ParseError::new(self.current_token, self.lexer.index));
                 }
                 self.next_token();
                 Ok(node)
             }
             ADD | SUB => {
-                self.next_token();
                 let operation_token = self.current_token;
+                self.next_token();
                 let factor = self.parse_factor()?;
                 let unary_expression_node = UnaryExpression::new(
                     factor,
@@ -126,7 +126,7 @@ impl<'a> RdParser<'a> {
                 );
                 Ok(Box::new(unary_expression_node))
             }
-            _ => Err(ParseError::for_token(self.current_token)),
+            _ => Err(ParseError::new(self.current_token, self.lexer.index)),
         }
     }
 }
