@@ -43,7 +43,7 @@ impl<'a> Lexer<'a> {
         }
 
         if self.index == self.length {
-            tok = TOKEN::TOK_NULL;
+            return  TOKEN::TOK_NULL;
         }
 
         match self.c() {

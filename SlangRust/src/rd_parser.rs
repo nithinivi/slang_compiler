@@ -57,7 +57,7 @@ impl<'a> RdParser<'a> {
     fn parse_expr(&mut self) -> Result<Box<dyn Expression>, ParseError> {
         let mut left = self.parse_term()?;
         while  ADD == self.current_token|| SUB == self.current_token {
-            let mut operation_token = self.current_token;
+            let operation_token = self.current_token;
             self.next_token();
             let right = self.parse_term()?;
             left = Box::new(BinaryExpression::new(
@@ -69,7 +69,6 @@ impl<'a> RdParser<'a> {
                     Operator::MINUS
                 },
             ));
-            operation_token = self.next_token();
         }
         Ok(left)
     }
@@ -78,7 +77,7 @@ impl<'a> RdParser<'a> {
     fn parse_term(&mut self) -> Result<Box<dyn Expression>, ParseError> {
         let mut left = self.parse_factor()?;
         while  MUL == self.current_token || DIV == self.current_token {
-            let mut operation_token = self.current_token;
+            let operation_token = self.current_token;
             self.next_token();
             let right: Box<dyn Expression> = self.parse_term()?;
             left = Box::new(BinaryExpression::new(
@@ -90,7 +89,6 @@ impl<'a> RdParser<'a> {
                     Operator::DIV
                 },
             ));
-            operation_token = self.next_token();
         }
         Ok(left)
     }

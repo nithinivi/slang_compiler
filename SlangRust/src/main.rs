@@ -10,7 +10,7 @@ mod rd_parser;
 
 fn main() {
 
-    let mut parser = RdParser::new("-2 * ( 3 + 3)" );
+    let mut parser = RdParser::new("-2 + 2 * 2" );
     let x = parser.callExpr(
     );
     println!("{:?}", x.unwrap().evaluate(&RuntimeContext::new()))
